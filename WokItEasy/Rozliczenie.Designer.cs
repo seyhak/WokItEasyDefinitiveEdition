@@ -87,7 +87,7 @@
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(36, 39);
             this.label5.TabIndex = 4;
-            this.label5.Text = "#";
+            this.label5.Text = "0";
             // 
             // label6
             // 
@@ -97,7 +97,7 @@
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(36, 39);
             this.label6.TabIndex = 5;
-            this.label6.Text = "#";
+            this.label6.Text = "0";
             // 
             // label7
             // 
@@ -107,7 +107,7 @@
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(36, 39);
             this.label7.TabIndex = 6;
-            this.label7.Text = "$";
+            this.label7.Text = "0";
             // 
             // label8
             // 
@@ -130,6 +130,7 @@
             this.Rozlicz.TabIndex = 8;
             this.Rozlicz.Text = "Rozlicz";
             this.Rozlicz.UseVisualStyleBackColor = false;
+            this.Rozlicz.Click += new System.EventHandler(this.Rozlicz_Click);
             // 
             // Rozliczenie
             // 

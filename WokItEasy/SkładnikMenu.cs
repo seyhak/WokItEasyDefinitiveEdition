@@ -22,5 +22,6 @@ namespace WokItEasy
         public int CenaSM { get => cenaSM; set => cenaSM = value; }
         public string NazwaSM { get => nazwaSM; set => nazwaSM = value; }
         public int IdSM { get => idSM; set => idSM = value; }
+        public string RodzajSM { get => rodzajSM; set => rodzajSM = value; }
     }
 }
