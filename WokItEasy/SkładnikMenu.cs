@@ -15,11 +15,11 @@ namespace WokItEasy
         private int idSM;
         private string nazwaSM;
         private string rodzajSM;
-        private int cenaSM;
+        private double cenaSM;
         private DateTime dataDodaniaSM;
 
         public DateTime DataDodaniaSM { get => dataDodaniaSM; set => dataDodaniaSM = value; }
-        public int CenaSM { get => cenaSM; set => cenaSM = value; }
+        public double CenaSM { get => cenaSM; set => cenaSM = value; }
         public string NazwaSM { get => nazwaSM; set => nazwaSM = value; }
         public int IdSM { get => idSM; set => idSM = value; }
         public string RodzajSM { get => rodzajSM; set => rodzajSM = value; }

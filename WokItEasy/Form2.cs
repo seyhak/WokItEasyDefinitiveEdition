@@ -26,15 +26,15 @@ namespace WokItEasy
             DataSet data = new DataSet();
             AdapterTabela.Fill(data, "SkładnikMenu");
             string wartosc;
-            List<Control> listaBTN = new List<Control>();
-            foreach(Control ctrl in this.Controls)
-            {
-                if (ctrl is Button)
-                {
-                    if(ctrl.Name!="button31" || ctrl.Name != "button32")
-                        listaBTN.Add(ctrl);
-                }
-            }
+            List<Button> listaBTN = new List<Button>();
+            //foreach(Control ctrl in this.Controls)
+            //{
+            //    if (ctrl is Button)
+            //    {
+            //        if(ctrl.Name!="button31" || ctrl.Name != "button32")
+            //            listaBTN.Add(ctrl);
+            //    }
+            //}
 
             for (int a = 0; a < data.Tables["SkładnikMenu"].Rows.Count; a++)
             {
@@ -45,7 +45,7 @@ namespace WokItEasy
                 wartosc = data.Tables["SkładnikMenu"].Rows[a][0].ToString();
                 składnik.IdSM = Int16.Parse(wartosc);
                 wartosc = data.Tables["SkładnikMenu"].Rows[a][3].ToString();
-                składnik.CenaSM = Int16.Parse(wartosc);
+                składnik.CenaSM = double.Parse(wartosc);
                 wartosc = data.Tables["SkładnikMenu"].Rows[a][4].ToString();
                 składnik.DataDodaniaSM = DateTime.Parse(wartosc);
                 listaSM.Add(składnik);
@@ -55,7 +55,7 @@ namespace WokItEasy
                 switch (składnik.RodzajSM)
                 {
                     case "Podstawa":
-                        while (listaBTN.Find(x => x.Name.Equals("button" + (b + 1).ToString())).Visible)
+                        while (listaBTN.Find(x => x.Name.Equals("button" + (b + 1).ToString())).Visible==true)
                         {
                             b++;
                         }
@@ -234,14 +234,14 @@ namespace WokItEasy
 
         private void button6_Click(object sender, EventArgs e)
         {
-            listBox1.Items.Add(button6.Text);
-            Cena(button6.Text);
+            //listBox1.Items.Add(button6.Text);
+            //Cena(button6.Text);
         }
 
         private void button11_Click(object sender, EventArgs e)
         {
-            listBox1.Items.Add(button11.Text);
-            Cena(button11.Text);
+            //listBox1.Items.Add(button11.Text);
+            //Cena(button11.Text);
         }
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -249,22 +249,22 @@ namespace WokItEasy
 
         }
 
-        private void button7_Click(object sender, EventArgs e)
-        {
-            listBox1.Items.Add(button7.Text);
-            Cena(button7.Text);
-        }
+        //private void button7_Click(object sender, EventArgs e)
+        //{
+        //    listBox1.Items.Add(button7.Text);
+        //    Cena(button7.Text);
+        //}
 
-        private void button12_Click(object sender, EventArgs e)
-        {
-            listBox1.Items.Add(button12.Text);
-            Cena(button12.Text);
-        }
+        //private void button12_Click(object sender, EventArgs e)
+        //{
+        //    listBox1.Items.Add(button12.Text);
+        //    Cena(button12.Text);
+        //}
 
-        private void button16_Click(object sender, EventArgs e)
-        {
-            listBox1.Items.Add(button16.Text);
-            Cena(button16.Text);
-        }
+        //private void button16_Click(object sender, EventArgs e)
+        //{
+        //    listBox1.Items.Add(button16.Text);
+        //    Cena(button16.Text);
+        //}
     }
 }

@@ -33,24 +33,24 @@ namespace WokItEasy
                 {
                     wartosc = data.Tables["Zamówienia"].Rows[a]["Online"].ToString();
                     string temp;
-                    int tempoInt;
+                    double tempoInt;
                     switch (wartosc)
                     {
                         case "True":
                             temp = label5.Text;
-                            tempoInt = Int16.Parse(temp) + Int16.Parse(data.Tables["Zamówienia"].Rows[a]["KwotaZamówienia"].ToString());
+                            tempoInt = double.Parse(temp) + double.Parse(data.Tables["Zamówienia"].Rows[a]["KwotaZamówienia"].ToString());
                             label5.Text = tempoInt.ToString();
                             break;
                         case "False":
                             temp = label6.Text;
-                            tempoInt = Int16.Parse(temp) + Int16.Parse(data.Tables["Zamówienia"].Rows[a]["KwotaZamówienia"].ToString());
+                            tempoInt = double.Parse(temp) + double.Parse(data.Tables["Zamówienia"].Rows[a]["KwotaZamówienia"].ToString());
                             label6.Text = tempoInt.ToString();
                             break;
                     }
                 }
             }
-            int tempo;
-            tempo = Int16.Parse(label6.Text) + Int16.Parse(label7.Text);
+            double tempo;
+            tempo = Double.Parse(label6.Text) + Double.Parse(label7.Text);
             label7.Text = tempo.ToString();
             connection.Close();
         }
