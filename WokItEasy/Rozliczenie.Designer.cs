@@ -150,6 +150,7 @@
             this.Name = "Rozliczenie";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Rozliczenie";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Rozliczenie_MouseClick);
             this.ResumeLayout(false);
             this.PerformLayout();

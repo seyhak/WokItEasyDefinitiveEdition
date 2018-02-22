@@ -167,6 +167,7 @@
             this.Name = "Historia";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Historia";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Historia_MouseClick);
             this.ResumeLayout(false);
             this.PerformLayout();
