@@ -14,7 +14,8 @@ namespace WokItEasy
     
     public partial class Menu : Form
     {
-        static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=D:\INFORMATYKA\6\Zespołowe programowanie\WokItEasy\WokItEasy\WokItEasy1.mdb";
+       static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Przemek\Desktop\repozytorium\WokItEasy\WokItEasy1.mdb";
+        //static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=D:\INFORMATYKA\6\Zespołowe programowanie\WokItEasy\WokItEasy\WokItEasy1.mdb";
        string zwrocKategorie(string a)
         {
             OleDbConnection connection = new OleDbConnection(source);
@@ -53,7 +54,7 @@ namespace WokItEasy
                     wartosc = data.Tables["SkładnikMenu"].Rows[a][2].ToString();
                     SkładnikMenu składnik = new SkładnikMenu();
                     wartosc = zwrocKategorie(Convert.ToInt32(wartosc).ToString());
-                    //data.Tables["Kategoria"].Rows[Convert.ToInt32(wartosc) - 1][1].ToString();
+                    data.Tables["Kategoria"].Rows[Convert.ToInt32(wartosc) - 1][1].ToString();
                     składnik.RodzajSM = wartosc;
                     składnik.NazwaSM = data.Tables["SkładnikMenu"].Rows[a][1].ToString();
                     wartosc = data.Tables["SkładnikMenu"].Rows[a][0].ToString();
