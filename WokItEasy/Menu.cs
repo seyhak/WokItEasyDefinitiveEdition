@@ -41,12 +41,9 @@ namespace WokItEasy
                 string query = "SELECT * FROM SkładnikMenu";
                 string query1 = "SELECT * FROM Kategoria";
                 OleDbCommand command = new OleDbCommand(query, connection);
-                OleDbCommand command1 = new OleDbCommand(query1, connection);
                 OleDbDataAdapter AdapterTabela = new OleDbDataAdapter(command);
-                OleDbDataAdapter AdapterTabela1 = new OleDbDataAdapter(command1);
                 DataSet data = new DataSet();
                 AdapterTabela.Fill(data, "SkładnikMenu");
-                AdapterTabela1.Fill(data, "Kategoria");
                 string wartosc;
                 List<SkładnikMenu> listaSM = new List<SkładnikMenu>();
                 for (int a = 0; a < data.Tables["SkładnikMenu"].Rows.Count; a++)
@@ -54,7 +51,6 @@ namespace WokItEasy
                     wartosc = data.Tables["SkładnikMenu"].Rows[a][2].ToString();
                     SkładnikMenu składnik = new SkładnikMenu();
                     wartosc = zwrocKategorie(Convert.ToInt32(wartosc).ToString());
-                    data.Tables["Kategoria"].Rows[Convert.ToInt32(wartosc) - 1][1].ToString();
                     składnik.RodzajSM = wartosc;
                     składnik.NazwaSM = data.Tables["SkładnikMenu"].Rows[a][1].ToString();
                     wartosc = data.Tables["SkładnikMenu"].Rows[a][0].ToString();
