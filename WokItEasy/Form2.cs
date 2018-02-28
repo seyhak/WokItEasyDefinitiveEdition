@@ -13,9 +13,8 @@ namespace WokItEasy
 {
     public partial class Form2 : Form
     {
-        
-        static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Przemek\Desktop\repozytorium\WokItEasy\WokItEasy1.mdb";
-        //static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=D:\INFORMATYKA\6\Zespołowe programowanie\WokItEasy\WokItEasy\WokItEasy1.mdb";
+
+        static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source = " + System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.mdb");
         List<SkładnikMenu> listaSM = new List<SkładnikMenu>();
         //void Pokaż()
         //{
@@ -147,21 +146,16 @@ namespace WokItEasy
                 OleDbConnection connection = new OleDbConnection(connString);
                 connection.Open();
                 string query = "SELECT * FROM SkładnikMenu";
-                string query1 = "SELECT * FROM Kategoria";
                 OleDbCommand command = new OleDbCommand(query, connection);
-                OleDbCommand command1 = new OleDbCommand(query1, connection);
                 OleDbDataAdapter AdapterTabela = new OleDbDataAdapter(command);
-                OleDbDataAdapter AdapterTabela1 = new OleDbDataAdapter(command1);
                 DataSet data = new DataSet();
                 AdapterTabela.Fill(data, "SkładnikMenu");
-                AdapterTabela1.Fill(data, "Kategoria");
                 string wartosc;
                 for (int a = 0; a < data.Tables["SkładnikMenu"].Rows.Count; a++)
                 {
                     wartosc = data.Tables["SkładnikMenu"].Rows[a][2].ToString();
                     SkładnikMenu składnik = new SkładnikMenu();
                     wartosc =  zwrocKategorie(Convert.ToInt32(wartosc).ToString());
-                    //data.Tables["Kategoria"].Rows[Convert.ToInt32(wartosc) - 1][1].ToString();
                     składnik.RodzajSM = wartosc;
                     składnik.NazwaSM = data.Tables["SkładnikMenu"].Rows[a][1].ToString();
                     wartosc = data.Tables["SkładnikMenu"].Rows[a][0].ToString();

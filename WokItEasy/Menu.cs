@@ -14,9 +14,8 @@ namespace WokItEasy
     
     public partial class Menu : Form
     {
-       static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Przemek\Desktop\repozytorium\WokItEasy\WokItEasy1.mdb";
-        //static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=D:\INFORMATYKA\6\Zespołowe programowanie\WokItEasy\WokItEasy\WokItEasy1.mdb";
-       string zwrocKategorie(string a)
+        static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source = " + System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.mdb");
+        string zwrocKategorie(string a)
         {
             OleDbConnection connection = new OleDbConnection(source);
             connection.Open();

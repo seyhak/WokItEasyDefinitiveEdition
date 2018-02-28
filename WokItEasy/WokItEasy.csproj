@@ -162,6 +162,9 @@
     <Content Include="Properties\RestItEz.png" />
     <None Include="Resources\RestItEz.png" />
     <None Include="Resources\RestItEzMini.png" />
+    <Content Include="Resources\WokItEasy1.mdb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="WokItEasy1.mdb">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
