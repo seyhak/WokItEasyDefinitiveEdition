@@ -113,11 +113,17 @@ namespace WokItEasy
                             button2.Visible = true;
                             button3.Visible = true;
                             button4.Visible = true;
+                            pictureBox1.Visible = false;
+                            button7.Visible = true;
+                            if (ObecnieZalogowanyUżytkownik.Kierownik)
+                            {
+                                button8.Visible = true;
+                            }
                             break;
                         }
                         else
                         {
-                            textBox1.Text = "Błędne hasło";
+                            textBox1.Text = "Błędne hasło lub login";
                             textBox2.Text = null;
                         }
                     }
@@ -134,6 +140,29 @@ namespace WokItEasy
 
             //string query = "SELECT Hasło FROM Pracownicy WHERE Login = " + textBox1.Text;
             //pracownicyTableAdapter.Adapter.
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            //wyloguj
+            button7.Visible = false;
+            label2.Visible = true;
+            label3.Visible = true;
+            textBox1.Visible = true;
+            textBox2.Visible = true;
+            button6.Visible = false;
+            button1.Visible = false;
+            button2.Visible = false;
+            button3.Visible = false;
+            button4.Visible = false;
+            pictureBox1.Visible = true;
+            ObecnieZalogowanyUżytkownik = new Użytkownik();
+            MessageBox.Show("Wylogowano");
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            //dodawanie pracownika i uprawinień
         }
     }
 }
