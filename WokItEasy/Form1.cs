@@ -83,9 +83,12 @@ namespace WokItEasy
                     DataSet data = new DataSet();
                     AdapterTabela.Fill(data,"Pracownicy");
                 string wartosc;
+                string aktywny;
                 for (int a=0; a < data.Tables["Pracownicy"].Rows.Count; a++)
                 {
                     wartosc = data.Tables["Pracownicy"].Rows[a]["Login"].ToString();
+                    aktywny = data.Tables["Pracownicy"].Rows[a]["Aktywny"].ToString();
+                    
                     if (wartosc == textBox1.Text)
                     {
                         string haslo = data.Tables["Pracownicy"].Rows[a]["Hasło"].ToString();
@@ -152,6 +155,8 @@ namespace WokItEasy
             label3.Visible = true;
             textBox1.Visible = true;
             textBox2.Visible = true;
+            textBox1.Text = "";
+            textBox2.Text = "";
             button6.Visible = false;
             button1.Visible = false;
             button2.Visible = false;
@@ -167,6 +172,8 @@ namespace WokItEasy
         private void button8_Click(object sender, EventArgs e)
         {
             //dodawanie pracownika i uprawinień
+            OknoAdmina oA = new OknoAdmina();
+            oA.Show();
         }
     }
 }
