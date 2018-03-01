@@ -64,10 +64,12 @@ namespace WokItEasy
             {
                 OleDbDataAdapter adapter = new OleDbDataAdapter(readRows);
                 adapter.Fill(dataTable);
+                string text = Convert.ToString(dataTable.Rows.Count)+" ";
+                sw.WriteLine(text);
                 //MessageBox.Show(Convert.ToString(dataTable.Rows.Count));
-                for(int i=0;i<dataTable.Rows.Count;i++)
+                for (int i=0;i<dataTable.Rows.Count;i++)
                 {
-                   string text = dataTable.Rows[i][0].ToString() + " " + dataTable.Rows[i][1].ToString() + " " + dataTable.Rows[i][2].ToString()+" "+ dataTable.Rows[i][3].ToString();
+                   text = dataTable.Rows[i][0].ToString() + " " + dataTable.Rows[i][1].ToString() + " " + dataTable.Rows[i][2].ToString()+" "+ dataTable.Rows[i][3].ToString();
                    sw.WriteLine(text);
                 }
                 sw.Close();
@@ -118,6 +120,33 @@ namespace WokItEasy
                             {
                                 asen = new ASCIIEncoding();//opwoiedz do klienta
                                 s.Send(asen.GetBytes("C"));
+                                //wysyłanie danych do klienta
+                                StreamReader sr = new StreamReader(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.txt"));
+                                string text = sr.ReadLine();
+                                do//przesłanie ilości obiektów dla klienta
+                                {
+                                    b = new byte[100];
+                                    s.Send(asen.GetBytes(text));
+                                    k = s.Receive(b);//odczytanie tekstu od klienta
+                                    tekst = "";
+                                    for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
+                                } while (tekst!="OK");
+                                MessageBox.Show("Ilosc przeslana");
+                                int ilosc = Convert.ToInt32(text);
+                                for(int i=0;i<ilosc;i++)
+                                {
+                                    do
+                                    {
+                                        MessageBox.Show("Server stop1");
+                                        text = sr.ReadLine();
+                                        s.Send(asen.GetBytes(text));
+                                        k = s.Receive(b);//odczytanie tekstu od klienta
+                                        tekst = "";
+                                        for (int j = 0; j < k; j++) tekst += Convert.ToChar(b[j]);
+                                    } while (tekst != "OK");
+                                }
+                                sr.Close();
+
                             }
                             else
                             {
@@ -131,9 +160,6 @@ namespace WokItEasy
                             s.Send(asen.GetBytes("W"));
                         }
                     }
-
-                    
-                    
                     s.Close();
                     myList.Stop();
                     
