@@ -5,15 +5,20 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;//watek
 using System.Threading.Tasks;
 using System.Data.OleDb;//access
 using System.Windows.Forms;
+using System.IO;//txt
 
 namespace WokItEasy
 {
     
     public partial class Form1 : Form
     {
+        static StreamWriter sw = new StreamWriter(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.txt"));
         static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source = " + System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.mdb");
       
         //static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Przemek\Desktop\repozytorium\WokItEasy\WokItEasy1.mdb";
@@ -21,14 +26,10 @@ namespace WokItEasy
         private static Użytkownik obecnieZalogowanyUżytkownik = new Użytkownik();
 
         internal static Użytkownik ObecnieZalogowanyUżytkownik { get => obecnieZalogowanyUżytkownik; set => obecnieZalogowanyUżytkownik = value; }
-
-        private void XMLConvert() //Konwersja do XML
+        private void XMLConvert() //Konwersja do XML oraz do txt
         {
             DataSet dataSet = new DataSet();
             OleDbConnection connnection = new OleDbConnection(source);
-            //connnection.Open();
-            //string query = "SELECT * FROM Pracownicy";
-
             using (connnection)
             {
                 connnection.Open();
@@ -37,12 +38,16 @@ namespace WokItEasy
                 // Fill the DataTables.
                 foreach (DataRow dataTableRow in schemaTable.Rows)
                 {
+                    
                     string tableName = dataTableRow["Table_Name"].ToString();
                     // I seem to get an extra table starting with ~. I can't seem to screen it out based on information in schemaTable,
                     // hence this hacky check.
                     if (!tableName.StartsWith("~", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        FillTable(dataSet, connnection, tableName);
+                        if (tableName == "SkładnikMenu")
+                        {
+                            FillTable(dataSet, connnection, tableName);//Wyciągam teraz tylko składniki
+                        }
                     }
                 }
                 connnection.Close();
@@ -51,7 +56,6 @@ namespace WokItEasy
             string name =System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.xml");
             dataSet.WriteXml(name);
         }
-
         private static void FillTable(DataSet dataSet, OleDbConnection conn, string tableName)// Funkcja pomocnicza do konwersji
         {
             DataTable dataTable = dataSet.Tables.Add(tableName);
@@ -59,12 +63,75 @@ namespace WokItEasy
             {
                 OleDbDataAdapter adapter = new OleDbDataAdapter(readRows);
                 adapter.Fill(dataTable);
+                //MessageBox.Show(Convert.ToString(dataTable.Rows.Count));
+                for(int i=0;i<dataTable.Rows.Count;i++)
+                {
+                   string text = dataTable.Rows[i][0].ToString() + " " + dataTable.Rows[i][1].ToString() + " " + dataTable.Rows[i][2].ToString()+" "+ dataTable.Rows[i][3].ToString();
+                   sw.WriteLine(text);
+                }
+                sw.Close();
             }
+        }
+        class ParametryWatku
+        {
+            public int id;
+            public SynchronizationContext synchro;
+        }
+        private void Watek(object objParam)// wstępna konstrukcja wątku do nasłuchiwania sieci
+        {
+            while(true)
+            {
+                try
+                {
+                    IPAddress ipAd = IPAddress.Parse("127.0.0.1");
+                    // use local m/c IP address, and 
+                    // use the same in the client
+
+                    /* Initializes the Listener */
+                    TcpListener myList = new TcpListener(ipAd, 8001);
+
+                    /* Start Listeneting at the specified port */
+                    myList.Start();
+
+                    //Console.WriteLine("The server is running at port 8001...");
+                    //Console.WriteLine("The local End point is  :" + myList.LocalEndpoint);
+                    //Console.WriteLine("Waiting for a connection.....");
+
+                    Socket s = myList.AcceptSocket();
+                    //Console.WriteLine("Connection accepted from " + s.RemoteEndPoint);
+
+                    byte[] b = new byte[100];
+                    int k = s.Receive(b);
+                    //Console.WriteLine("Recieved...");
+                    string tekst = "";
+
+                    for (int i = 0; i < k; i++)tekst+=Convert.ToChar(b[i]);
+                    MessageBox.Show(tekst);
+
+                    ASCIIEncoding asen = new ASCIIEncoding();
+                    s.Send(asen.GetBytes("The string was recieved by the server."));
+                    //Console.WriteLine("\nSent Acknowledgement");
+                    /* clean up */
+                    s.Close();
+                    myList.Stop();
+                    
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error..... " + e.StackTrace);
+                }
+            }
+            
         }
 
         public Form1()
         {
             InitializeComponent();
+            ParametryWatku parametry = new ParametryWatku();
+            parametry.id = 1;
+            parametry.synchro = WindowsFormsSynchronizationContext.Current.CreateCopy();
+            new Thread(Watek).Start(parametry);
         }
 
         private void button1_Click(object sender, EventArgs e)

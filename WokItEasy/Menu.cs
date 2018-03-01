@@ -39,7 +39,7 @@ namespace WokItEasy
                 OleDbConnection connection = new OleDbConnection(connString);
                 connection.Open();
                 string query = "SELECT * FROM SkładnikMenu";
-                string query1 = "SELECT * FROM Kategoria";
+                //string query1 = "SELECT * FROM Kategoria";
                 OleDbCommand command = new OleDbCommand(query, connection);
                 OleDbDataAdapter AdapterTabela = new OleDbDataAdapter(command);
                 DataSet data = new DataSet();

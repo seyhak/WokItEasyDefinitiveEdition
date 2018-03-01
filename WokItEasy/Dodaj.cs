@@ -8,24 +8,23 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.OleDb;
+using System.IO;
 
 namespace WokItEasy
 {
     
     public partial class Dodaj : Form
     {
+        static StreamWriter sw = new StreamWriter(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.txt"));
         static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source = " + System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.mdb");
       
         string nazwaEdytowana = "";
         string katEdytowana = "";
         bool trybKategorii = false;
-        private void XMLConvert() //Konwersja do XML
+        private void XMLConvert() //Konwersja do XML oraz do txt
         {
             DataSet dataSet = new DataSet();
             OleDbConnection connnection = new OleDbConnection(source);
-            //connnection.Open();
-            //string query = "SELECT * FROM Pracownicy";
-
             using (connnection)
             {
                 connnection.Open();
@@ -34,12 +33,16 @@ namespace WokItEasy
                 // Fill the DataTables.
                 foreach (DataRow dataTableRow in schemaTable.Rows)
                 {
+
                     string tableName = dataTableRow["Table_Name"].ToString();
                     // I seem to get an extra table starting with ~. I can't seem to screen it out based on information in schemaTable,
                     // hence this hacky check.
                     if (!tableName.StartsWith("~", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        FillTable(dataSet, connnection, tableName);
+                        if (tableName == "SkładnikMenu")
+                        {
+                            FillTable(dataSet, connnection, tableName);//Wyciągam teraz tylko składniki
+                        }
                     }
                 }
                 connnection.Close();
@@ -48,7 +51,6 @@ namespace WokItEasy
             string name = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.xml");
             dataSet.WriteXml(name);
         }
-
         private static void FillTable(DataSet dataSet, OleDbConnection conn, string tableName)// Funkcja pomocnicza do konwersji
         {
             DataTable dataTable = dataSet.Tables.Add(tableName);
@@ -56,6 +58,13 @@ namespace WokItEasy
             {
                 OleDbDataAdapter adapter = new OleDbDataAdapter(readRows);
                 adapter.Fill(dataTable);
+                //MessageBox.Show(Convert.ToString(dataTable.Rows.Count));
+                for (int i = 0; i < dataTable.Rows.Count; i++)
+                {
+                    string text = dataTable.Rows[i][0].ToString() + " " + dataTable.Rows[i][1].ToString() + " " + dataTable.Rows[i][2].ToString() + " " + dataTable.Rows[i][3].ToString();
+                    sw.WriteLine(text);
+                }
+                sw.Close();
             }
         }
         void DodajPozycje()
