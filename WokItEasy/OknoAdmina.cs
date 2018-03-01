@@ -16,6 +16,45 @@ namespace WokItEasy
     {
         static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source = " + System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.mdb");
         static bool trybDodawania = false;
+        private void XMLConvert() //Konwersja do XML
+        {
+            DataSet dataSet = new DataSet();
+            OleDbConnection connnection = new OleDbConnection(source);
+            //connnection.Open();
+            //string query = "SELECT * FROM Pracownicy";
+
+            using (connnection)
+            {
+                connnection.Open();
+                // Retrieve the schema
+                DataTable schemaTable = connnection.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, new object[] { null, null, null, "TABLE" });
+                // Fill the DataTables.
+                foreach (DataRow dataTableRow in schemaTable.Rows)
+                {
+                    string tableName = dataTableRow["Table_Name"].ToString();
+                    // I seem to get an extra table starting with ~. I can't seem to screen it out based on information in schemaTable,
+                    // hence this hacky check.
+                    if (!tableName.StartsWith("~", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        FillTable(dataSet, connnection, tableName);
+                    }
+                }
+                connnection.Close();
+            }
+
+            string name = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.xml");
+            dataSet.WriteXml(name);
+        }
+
+        private static void FillTable(DataSet dataSet, OleDbConnection conn, string tableName)// Funkcja pomocnicza do konwersji
+        {
+            DataTable dataTable = dataSet.Tables.Add(tableName);
+            using (OleDbCommand readRows = new OleDbCommand("SELECT * from " + tableName, conn))
+            {
+                OleDbDataAdapter adapter = new OleDbDataAdapter(readRows);
+                adapter.Fill(dataTable);
+            }
+        }
         public OknoAdmina()
         {
             InitializeComponent();
@@ -39,6 +78,7 @@ namespace WokItEasy
                 DataSet data = new DataSet();
                 AdapterTabela.Fill(data, "Pracownicy");
                 connection.Close();
+                XMLConvert();
             }
             catch
             {
@@ -113,6 +153,7 @@ namespace WokItEasy
                     DataSet data = new DataSet();
                     AdapterTabela.Fill(data, "Pracownicy");
                     connection.Close();
+                    XMLConvert();
                     MessageBox.Show("Dodano: " + textBox1.Text + " " + textBox2.Text + "na stanowisko: " + textBox5.Text);
                     Menu menu = new Menu();
                     menu.Pokaż();

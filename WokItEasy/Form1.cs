@@ -22,6 +22,46 @@ namespace WokItEasy
 
         internal static Użytkownik ObecnieZalogowanyUżytkownik { get => obecnieZalogowanyUżytkownik; set => obecnieZalogowanyUżytkownik = value; }
 
+        private void XMLConvert() //Konwersja do XML
+        {
+            DataSet dataSet = new DataSet();
+            OleDbConnection connnection = new OleDbConnection(source);
+            //connnection.Open();
+            //string query = "SELECT * FROM Pracownicy";
+
+            using (connnection)
+            {
+                connnection.Open();
+                // Retrieve the schema
+                DataTable schemaTable = connnection.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, new object[] { null, null, null, "TABLE" });
+                // Fill the DataTables.
+                foreach (DataRow dataTableRow in schemaTable.Rows)
+                {
+                    string tableName = dataTableRow["Table_Name"].ToString();
+                    // I seem to get an extra table starting with ~. I can't seem to screen it out based on information in schemaTable,
+                    // hence this hacky check.
+                    if (!tableName.StartsWith("~", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        FillTable(dataSet, connnection, tableName);
+                    }
+                }
+                connnection.Close();
+            }
+
+            string name =System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.xml");
+            dataSet.WriteXml(name);
+        }
+
+        private static void FillTable(DataSet dataSet, OleDbConnection conn, string tableName)// Funkcja pomocnicza do konwersji
+        {
+            DataTable dataTable = dataSet.Tables.Add(tableName);
+            using (OleDbCommand readRows = new OleDbCommand("SELECT * from " + tableName, conn))
+            {
+                OleDbDataAdapter adapter = new OleDbDataAdapter(readRows);
+                adapter.Fill(dataTable);
+            }
+        }
+
         public Form1()
         {
             InitializeComponent();
@@ -95,7 +135,7 @@ namespace WokItEasy
                         if (haslo == textBox2.Text)
                         {
                             //jeśli się udało zaloguj i zapisz w klasie
-                            
+                            XMLConvert();//Wywołanie konwersji
                             string temp = data.Tables["Pracownicy"].Rows[a][0].ToString();
                             ObecnieZalogowanyUżytkownik.Id = Int16.Parse(temp);
 

@@ -19,6 +19,45 @@ namespace WokItEasy
         string nazwaEdytowana = "";
         string katEdytowana = "";
         bool trybKategorii = false;
+        private void XMLConvert() //Konwersja do XML
+        {
+            DataSet dataSet = new DataSet();
+            OleDbConnection connnection = new OleDbConnection(source);
+            //connnection.Open();
+            //string query = "SELECT * FROM Pracownicy";
+
+            using (connnection)
+            {
+                connnection.Open();
+                // Retrieve the schema
+                DataTable schemaTable = connnection.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, new object[] { null, null, null, "TABLE" });
+                // Fill the DataTables.
+                foreach (DataRow dataTableRow in schemaTable.Rows)
+                {
+                    string tableName = dataTableRow["Table_Name"].ToString();
+                    // I seem to get an extra table starting with ~. I can't seem to screen it out based on information in schemaTable,
+                    // hence this hacky check.
+                    if (!tableName.StartsWith("~", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        FillTable(dataSet, connnection, tableName);
+                    }
+                }
+                connnection.Close();
+            }
+
+            string name = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.xml");
+            dataSet.WriteXml(name);
+        }
+
+        private static void FillTable(DataSet dataSet, OleDbConnection conn, string tableName)// Funkcja pomocnicza do konwersji
+        {
+            DataTable dataTable = dataSet.Tables.Add(tableName);
+            using (OleDbCommand readRows = new OleDbCommand("SELECT * from " + tableName, conn))
+            {
+                OleDbDataAdapter adapter = new OleDbDataAdapter(readRows);
+                adapter.Fill(dataTable);
+            }
+        }
         void DodajPozycje()
         {
             try
@@ -40,6 +79,7 @@ namespace WokItEasy
                 DataSet data = new DataSet();
                 AdapterTabela.Fill(data, "SkładnikMenu");
                 connection.Close();
+                XMLConvert();
                 MessageBox.Show("Dodano: " + textBox1.Text);
                 Menu menu = new Menu();
                 menu.Pokaż();
@@ -98,8 +138,8 @@ namespace WokItEasy
                     wartosc = data.Tables["Kategoria"].Rows[a][1].ToString();
                     comboBox1.Items.Add(wartosc);
                 }
-
                 connection.Close();
+                XMLConvert();
             }
             catch
             {
@@ -139,6 +179,7 @@ namespace WokItEasy
                 }
                 comboBox1.SelectedIndex = indKat-1;
                 connection.Close();
+                XMLConvert();
             }
             catch
             {
