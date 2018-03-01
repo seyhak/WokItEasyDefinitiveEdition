@@ -26,6 +26,7 @@ namespace WokItEasy
             DataSet data = new DataSet();
             AdapterTabela1.Fill(data, "Kategoria");
             a= data.Tables["Kategoria"].Rows[0][0].ToString();
+            connection.Close();
             return a;
         }
         public void Pokaż()
