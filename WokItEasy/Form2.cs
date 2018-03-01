@@ -16,105 +16,9 @@ namespace WokItEasy
 
         static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source = " + System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.mdb");
         List<SkładnikMenu> listaSM = new List<SkładnikMenu>();
-        //void Pokaż()
-        //{
-        //    string connString = source;
-        //    OleDbConnection connection = new OleDbConnection(connString);
-        //    connection.Open();
-        //    string query = "SELECT * FROM SkładnikMenu";
-        //    OleDbCommand command = new OleDbCommand(query, connection);
-        //    OleDbDataAdapter AdapterTabela = new OleDbDataAdapter(command);
-        //    DataSet data = new DataSet();
-        //    AdapterTabela.Fill(data, "SkładnikMenu");
-        //    string wartosc;
-        //    List<Button> listaBTN = new List<Button>();
-        //    //foreach(Control ctrl in this.Controls)
-        //    //{
-        //    //    if (ctrl is Button)
-        //    //    {
-        //    //        if(ctrl.Name!="button31" || ctrl.Name != "button32")
-        //    //            listaBTN.Add(ctrl);
-        //    //    }
-        //    //}
-
-        //    for (int a = 0; a < data.Tables["SkładnikMenu"].Rows.Count; a++)
-        //    {
-        //        wartosc = data.Tables["SkładnikMenu"].Rows[a][2].ToString();
-        //        SkładnikMenu składnik = new SkładnikMenu();
-        //        składnik.RodzajSM = wartosc;
-        //        składnik.NazwaSM = data.Tables["SkładnikMenu"].Rows[a][1].ToString();
-        //        wartosc = data.Tables["SkładnikMenu"].Rows[a][0].ToString();
-        //        składnik.IdSM = Int16.Parse(wartosc);
-        //        wartosc = data.Tables["SkładnikMenu"].Rows[a][3].ToString();
-        //        składnik.CenaSM = double.Parse(wartosc);
-        //        wartosc = data.Tables["SkładnikMenu"].Rows[a][4].ToString();
-        //        składnik.DataDodaniaSM = DateTime.Parse(wartosc);
-        //        listaSM.Add(składnik);
-
-
-        //        int b = 0;
-        //        switch (składnik.RodzajSM)
-        //        {
-        //            case "Podstawa":
-        //                while (listaBTN.Find(x => x.Name.Equals("button" + (b + 1).ToString())).Visible==true)
-        //                {
-        //                    b++;
-        //                }
-        //                listaBTN.Find(x => x.Name.Equals("button" + (b + 1).ToString())).Visible = true;
-        //                listaBTN.Find(x => x.Name.Equals("button" + (b + 1).ToString())).BackColor = Color.LightGreen;
-        //                listaBTN.Find(x => x.Name.Equals("button" + (b + 1).ToString())).Text = data.Tables["SkładnikMenu"].Rows[a][1].ToString();
-        //                break;
-        //            case "Baza":
-        //                while (listaBTN.Find(x => x.Name.Equals("button" + (b + 6).ToString())).Visible)
-        //                {
-        //                    b++;
-        //                }
-        //                listaBTN.Find(x => x.Name.Equals("button" + (b + 6).ToString())).Visible = true;
-        //                listaBTN.Find(x => x.Name.Equals("button" + (b + 6).ToString())).BackColor = Color.LightGreen;
-        //                listaBTN.Find(x => x.Name.Equals("button" + (b + 6).ToString())).Text = data.Tables["SkładnikMenu"].Rows[a][1].ToString();
-        //                break;
-        //            case "Sos":
-        //                while (listaBTN.Find(x => x.Name.Equals("button" + (b + 11).ToString())).Visible)
-        //                {
-        //                    b++;
-        //                }
-        //                listaBTN.Find(x => x.Name.Equals("button" + (b + 11).ToString())).Visible = true;
-        //                listaBTN.Find(x => x.Name.Equals("button" + (b + 11).ToString())).BackColor = Color.LightGreen;
-        //                listaBTN.Find(x => x.Name.Equals("button" + (b + 11).ToString())).Text = data.Tables["SkładnikMenu"].Rows[a][1].ToString();
-        //                break;
-        //            case "Posypka":
-        //                while (listaBTN.Find(x => x.Name.Equals("button" + (b + 16).ToString())).Visible)
-        //                {
-        //                    b++;
-        //                }
-        //                listaBTN.Find(x => x.Name.Equals("button" + (b + 16).ToString())).Visible = true;
-        //                listaBTN.Find(x => x.Name.Equals("button" + (b + 16).ToString())).BackColor = Color.LightGreen;
-        //                listaBTN.Find(x => x.Name.Equals("button" + (b + 16).ToString())).Text = data.Tables["SkładnikMenu"].Rows[a][1].ToString();
-        //                break;
-        //            case "Inne":
-        //                while (listaBTN.Find(x => x.Name.Equals("button" + (b + 21).ToString())).Visible)
-        //                {
-        //                    b++;
-        //                }
-        //                listaBTN.Find(x => x.Name.Equals("button" + (b + 21).ToString())).Visible = true;
-        //                listaBTN.Find(x => x.Name.Equals("button" + (b + 21).ToString())).BackColor = Color.LightGreen;
-        //                listaBTN.Find(x => x.Name.Equals("button" + (b + 21).ToString())).Text = data.Tables["SkładnikMenu"].Rows[a][1].ToString();
-        //                break;
-        //            case "Napoje":
-        //                while (listaBTN.Find(x => x.Name.Equals("button" + (b + 26).ToString())).Visible)
-        //                {
-        //                    b++;
-        //                }
-        //                listaBTN.Find(x => x.Name.Equals("button" + (b + 26).ToString())).Visible = true;
-        //                listaBTN.Find(x => x.Name.Equals("button" + (b + 26).ToString())).BackColor = Color.LightGreen;
-        //                listaBTN.Find(x => x.Name.Equals("button" + (b + 26).ToString())).Text = data.Tables["SkładnikMenu"].Rows[a][1].ToString();
-        //                break;
-
-        //        }
-        //    }
-        //    connection.Close();
-
-        //}
+        List<int> listaIlePozycjiNaStrone = new List<int>();
+        int ktoraStronaOgolnie = 0;
+        
         public Form2()
         {
             InitializeComponent();
@@ -138,7 +42,7 @@ namespace WokItEasy
             a = data.Tables["Kategoria"].Rows[0][0].ToString();
             return a;
         }
-        private void CreateButtons()
+        void ZbudujListePozycji()
         {
             try
             {
@@ -155,7 +59,7 @@ namespace WokItEasy
                 {
                     wartosc = data.Tables["SkładnikMenu"].Rows[a][2].ToString();
                     SkładnikMenu składnik = new SkładnikMenu();
-                    wartosc =  zwrocKategorie(Convert.ToInt32(wartosc).ToString());
+                    wartosc = zwrocKategorie(Convert.ToInt32(wartosc).ToString());
                     składnik.RodzajSM = wartosc;
                     składnik.NazwaSM = data.Tables["SkładnikMenu"].Rows[a][1].ToString();
                     wartosc = data.Tables["SkładnikMenu"].Rows[a][0].ToString();
@@ -169,17 +73,22 @@ namespace WokItEasy
 
                 }
                 connection.Close();
+            }
+            catch
+            {
+                MessageBox.Show("Błąd odczytywania menu");
 
-                int ileButtonow = listaSM.Count;//w rzędzie mieści się 6 w kolumnie 6
+            }
+        }
+        private void StwórzButtony()//todo
+        {
+            try
+            {
+                int ileButtonow = listaIlePozycjiNaStrone[ktoraStronaOgolnie];//w rzędzie mieści się 6 w kolumnie 6
                 int ilePokazac = ileButtonow;
                 int x, y;
                 x = y = 0;
-                if (ileButtonow > 36)
-                {
-                    ilePokazac = 36;
-                    button1.Visible = true;
-                    button2.Visible = true;
-                }
+                int odKtoregoIDZaczac = ktoraStronaOgolnie*36;
                 for (int a = 0; a < ilePokazac; a++)
                 {
                     if (a % 6 == 0 && x != 0)
@@ -197,14 +106,14 @@ namespace WokItEasy
                     x += 125;
 
                     dynamicButton.Click += new EventHandler(DynamicButton_Click);
-
                     Controls.Add(dynamicButton);
                 }
 
             }
             catch
             {
-                MessageBox.Show("Błąd odczytywania menu");
+                if(listaIlePozycjiNaStrone[ktoraStronaOgolnie]==0)
+                    MessageBox.Show("Brak pozycji do wyświetlenia");
 
             }
             //dynamicButton.Name = "DynamicButton";
@@ -221,9 +130,44 @@ namespace WokItEasy
             //Controls.Add(dynamicButton);
 
         }
+        void CzyZaDuzoPozycji()
+        {
+            
+            if (listaSM.Count > 36)
+            {
+
+                button1.Visible = true;
+                button2.Visible = true;
+            }
+        }
+        void StworzListeStron()
+        {
+            int ile = 0;
+            int ktoraStronaNaLiscie = 0;
+            foreach(SkładnikMenu sm in listaSM)
+            {
+                ile++;
+
+                if (ile == 36)
+                {
+                    listaIlePozycjiNaStrone.Add(ile);
+                    ile = 0;
+                    ktoraStronaNaLiscie++;
+                }
+            }
+            listaIlePozycjiNaStrone.Add(ile);
+        }
+        void GenerujPrzewijanie()
+        {
+            StwórzButtony();
+
+        }
         private void Form2_Load(object sender, EventArgs e)
         {
-            CreateButtons();
+            ZbudujListePozycji();
+            CzyZaDuzoPozycji();
+            StworzListeStron();
+            StwórzButtony();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -356,6 +300,26 @@ namespace WokItEasy
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            //lewo
+            if (ktoraStronaOgolnie > 0)
+            {
+                ktoraStronaOgolnie--;
+                StwórzButtony();
+            }
+        }
+        
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+            //prawo
+            if (ktoraStronaOgolnie > listaIlePozycjiNaStrone.Count-1)
+            {
+                ktoraStronaOgolnie++;
+                StwórzButtony();
+            }
         }
 
         //private void button7_Click(object sender, EventArgs e)
