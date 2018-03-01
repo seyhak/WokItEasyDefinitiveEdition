@@ -17,6 +17,7 @@ namespace WokItEasy
         static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source = " + System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.mdb");
         List<SkładnikMenu> listaSM = new List<SkładnikMenu>();
         List<int> listaIlePozycjiNaStrone = new List<int>();
+        List<Button> listaButtonowNaStronie = new List<Button>();
         int ktoraStronaOgolnie = 0;
         
         public Form2()
@@ -106,6 +107,7 @@ namespace WokItEasy
                     x += 125;
 
                     dynamicButton.Click += new EventHandler(DynamicButton_Click);
+                    listaButtonowNaStronie.Add(dynamicButton);
                     Controls.Add(dynamicButton);
                 }
 
@@ -129,6 +131,13 @@ namespace WokItEasy
 
             //Controls.Add(dynamicButton);
 
+        }
+        void UsunButtony()
+        {
+            foreach (Button btn in listaButtonowNaStronie)
+            {
+                this.Controls.Remove(btn);
+                    }
         }
         void CzyZaDuzoPozycji()
         {
@@ -305,9 +314,10 @@ namespace WokItEasy
         private void button1_Click_1(object sender, EventArgs e)
         {
             //lewo
-            if (ktoraStronaOgolnie > 0)
+            if (ktoraStronaOgolnie >0)
             {
                 ktoraStronaOgolnie--;
+                UsunButtony();
                 StwórzButtony();
             }
         }
@@ -315,9 +325,10 @@ namespace WokItEasy
         private void button2_Click_1(object sender, EventArgs e)
         {
             //prawo
-            if (ktoraStronaOgolnie > listaIlePozycjiNaStrone.Count-1)
+            if (ktoraStronaOgolnie < listaIlePozycjiNaStrone.Count-1)
             {
                 ktoraStronaOgolnie++;
+                UsunButtony();
                 StwórzButtony();
             }
         }
