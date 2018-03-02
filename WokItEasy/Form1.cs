@@ -18,7 +18,7 @@ namespace WokItEasy
     
     public partial class Form1 : Form
     {
-        static StreamWriter sw = new StreamWriter(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.txt"));
+        
         static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source = " + System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.mdb");
       
         //static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Przemek\Desktop\repozytorium\WokItEasy\WokItEasy1.mdb";
@@ -58,15 +58,18 @@ namespace WokItEasy
         }
         private static void FillTable(DataSet dataSet, OleDbConnection conn, string tableName)// Funkcja pomocnicza do konwersji
         {
+            StreamWriter sw = new StreamWriter(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.txt"));
             DataTable dataTable = dataSet.Tables.Add(tableName);
             using (OleDbCommand readRows = new OleDbCommand("SELECT * from " + tableName, conn))
             {
                 OleDbDataAdapter adapter = new OleDbDataAdapter(readRows);
                 adapter.Fill(dataTable);
+                string text = Convert.ToString(dataTable.Rows.Count)+" ";
+                sw.WriteLine(text);
                 //MessageBox.Show(Convert.ToString(dataTable.Rows.Count));
-                for(int i=0;i<dataTable.Rows.Count;i++)
+                for (int i=0;i<dataTable.Rows.Count;i++)
                 {
-                   string text = dataTable.Rows[i][0].ToString() + " " + dataTable.Rows[i][1].ToString() + " " + dataTable.Rows[i][2].ToString()+" "+ dataTable.Rows[i][3].ToString();
+                   text = dataTable.Rows[i][0].ToString() + " " + dataTable.Rows[i][1].ToString() + " " + dataTable.Rows[i][2].ToString()+" "+ dataTable.Rows[i][3].ToString();
                    sw.WriteLine(text);
                 }
                 sw.Close();
@@ -83,35 +86,80 @@ namespace WokItEasy
             {
                 try
                 {
-                    IPAddress ipAd = IPAddress.Parse("127.0.0.1");
-                    // use local m/c IP address, and 
-                    // use the same in the client
-
-                    /* Initializes the Listener */
-                    TcpListener myList = new TcpListener(ipAd, 8001);
-
-                    /* Start Listeneting at the specified port */
+                    IPAddress ipAd = IPAddress.Parse("127.0.0.1");//ip serwera
+                    TcpListener myList = new TcpListener(ipAd, 8001);//ip portu
                     myList.Start();
-
-                    //Console.WriteLine("The server is running at port 8001...");
-                    //Console.WriteLine("The local End point is  :" + myList.LocalEndpoint);
-                    //Console.WriteLine("Waiting for a connection.....");
-
                     Socket s = myList.AcceptSocket();
-                    //Console.WriteLine("Connection accepted from " + s.RemoteEndPoint);
-
                     byte[] b = new byte[100];
-                    int k = s.Receive(b);
-                    //Console.WriteLine("Recieved...");
+                    int k = s.Receive(b);//odczytanie tekstu od klienta
                     string tekst = "";
-
                     for (int i = 0; i < k; i++)tekst+=Convert.ToChar(b[i]);
-                    MessageBox.Show(tekst);
+                    //MessageBox.Show(tekst);//wypisanie wczytanego tekstu
 
-                    ASCIIEncoding asen = new ASCIIEncoding();
-                    s.Send(asen.GetBytes("The string was recieved by the server."));
-                    //Console.WriteLine("\nSent Acknowledgement");
-                    /* clean up */
+                    string[] splited = tekst.Split(' ');
+                    OleDbConnection connection = new OleDbConnection(source);
+
+                    connection.Open();//poszukiwanie loginu i hasla
+                    string query = "SELECT * FROM Pracownicy";
+                    OleDbCommand command = new OleDbCommand(query, connection);
+                    OleDbDataAdapter AdapterTabela = new OleDbDataAdapter(command);
+                    ASCIIEncoding asen;
+                    DataSet data = new DataSet();
+                    AdapterTabela.Fill(data, "Pracownicy");
+                    string wartosc;
+                    string aktywny;
+                    for (int a = 0; a < data.Tables["Pracownicy"].Rows.Count; a++)
+                    {
+                        wartosc = data.Tables["Pracownicy"].Rows[a]["Login"].ToString();
+                        aktywny = data.Tables["Pracownicy"].Rows[a]["Aktywny"].ToString();
+
+                        if (wartosc == splited[0])
+                        {
+                            string haslo = data.Tables["Pracownicy"].Rows[a]["Hasło"].ToString();
+                            if (haslo == splited[1])
+                            {
+                                asen = new ASCIIEncoding();//opwoiedz do klienta
+                                s.Send(asen.GetBytes("C"));
+                                //wysyłanie danych do klienta
+                                StreamReader sr = new StreamReader(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.txt"));
+                                string text = sr.ReadLine();
+                                do//przesłanie ilości obiektów dla klienta
+                                {
+                                    b = new byte[100];
+                                    s.Send(asen.GetBytes(text));
+                                    k = s.Receive(b);//odczytanie tekstu od klienta
+                                    tekst = "";
+                                    for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
+                                } while (tekst!="OK");
+                                MessageBox.Show("Ilosc przeslana");
+                                int ilosc = Convert.ToInt32(text);
+                                for(int i=0;i<ilosc;i++)
+                                {
+                                    do
+                                    {
+                                        MessageBox.Show("Server stop1");
+                                        text = sr.ReadLine();
+                                        s.Send(asen.GetBytes(text));
+                                        k = s.Receive(b);//odczytanie tekstu od klienta
+                                        tekst = "";
+                                        for (int j = 0; j < k; j++) tekst += Convert.ToChar(b[j]);
+                                    } while (tekst != "OK");
+                                }
+                                sr.Close();
+
+                            }
+                            else
+                            {
+                                asen = new ASCIIEncoding();//opwoiedz do klienta
+                                s.Send(asen.GetBytes("W"));
+                            }
+                        }
+                        else
+                        {
+                            asen = new ASCIIEncoding();//opwoiedz do klienta
+                            s.Send(asen.GetBytes("W"));
+                        }
+                    }
                     s.Close();
                     myList.Stop();
                     
