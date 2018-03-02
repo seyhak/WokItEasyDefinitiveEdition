@@ -1,0 +1,56 @@
+1 Teryaki 1 12
+2 Mee 3 4
+3 Kurczak 4 4
+4 Sezam 2 1
+5 Rosół 7 10
+6 Coca-cola 5 6
+7 Pad Thai 1 12
+8 Pepsi 5 6
+13 Ryż 3 6
+14 Pierogi 6 16
+15 Żeberka 3 16
+16 Pomidorowa 7 5
+23 Zamkowe 8 1,9
+24 Fresco 9 20,9
+26 Pan Tadeusz 11 60
+27 Teryaki 1 12
+28 Mee 3 4
+29 Kurczak 4 4
+30 Sezam 2 1
+31 Rosół 7 10
+32 Coca-cola 5 6
+33 Pad Thai 1 12
+34 Pepsi 5 6
+35 Ryż 3 6
+36 Pierogi 6 16
+37 Żeberka 3 16
+38 Pomidorowa 7 5
+39 Zamkowe 8 1,9
+40 Fresco 9 20,9
+41 Pan Tadeusz 11 60
+42 Rosół 7 10
+43 Coca-cola 5 6
+44 Pad Thai 1 12
+45 Pepsi 5 6
+46 Ryż 3 6
+47 Pierogi 6 16
+48 Żeberka 3 16
+49 Pomidorowa 7 5
+50 Zamkowe 8 1,9
+51 Fresco 9 20,9
+52 Pan Tadeusz 11 60
+53 Teryaki 1 12
+54 Mee 3 4
+55 Kurczak 4 4
+56 Sezam 2 1
+57 Rosół 7 10
+58 Coca-cola 5 6
+59 Pad Thai 1 12
+60 Pepsi 5 6
+61 Ryż 3 6
+62 Pierogi 6 16
+63 Żeberka 3 16
+64 Pomidorowa 7 5
+65 Zamkowe 8 1,9
+66 Fresco 9 20,9
+67 Pan Tadeusz 11 60
