@@ -18,7 +18,10 @@ namespace WokItEasy
     
     public partial class Form1 : Form
     {
-        
+        List<SkładnikMenu> listaSM = new List<SkładnikMenu>();
+        List<TcpListener> l_Sockets = new List<TcpListener>();
+        private bool end = true;
+        private static Mutex mut = new Mutex();
         static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source = " + System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.mdb");
       
         //static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Przemek\Desktop\repozytorium\WokItEasy\WokItEasy1.mdb";
@@ -26,6 +29,30 @@ namespace WokItEasy
         private static Użytkownik obecnieZalogowanyUżytkownik = new Użytkownik();
 
         internal static Użytkownik ObecnieZalogowanyUżytkownik { get => obecnieZalogowanyUżytkownik; set => obecnieZalogowanyUżytkownik = value; }
+
+        private void DopiszZamowienie(string produkty, double cena)
+        {
+            string connectionString = source;
+            OleDbConnection conn = new OleDbConnection(connectionString);
+            conn.Open();
+            string query1 = "INSERT INTO Zamówienia (DataZamówienia, KwotaZamówienia, IDSM, IDObsługi, Online, Rozliczone) VALUES('";
+            query1 += DateTime.Now.ToString();
+            query1 += "', '";
+            query1 += cena;
+            query1 += "', '";
+            query1 += produkty;
+            query1 += "', ";
+            query1 += Form1.ObecnieZalogowanyUżytkownik.Id.ToString();// tu trzeba bedzie dać ID pracownika z konta klienta który przesłał zamówienie
+            query1 += ", ";
+            query1 += "True";
+            query1 += ", ";
+            query1 += "False);";
+            OleDbCommand comm = new OleDbCommand(query1, conn);
+            OleDbDataAdapter AdapterTab = new OleDbDataAdapter(comm);
+            DataSet data1 = new DataSet();
+            AdapterTab.Fill(data1, "Zamówienia");
+            MessageBox.Show("Sukces");
+        }
         private void XMLConvert() //Konwersja do XML oraz do txt
         {
             DataSet dataSet = new DataSet();
@@ -80,97 +107,217 @@ namespace WokItEasy
             public int id;
             public SynchronizationContext synchro;
         }
-        private void Watek(object objParam)// wstępna konstrukcja wątku do nasłuchiwania sieci
+        private void Listener(object objParam)
         {
-            while(true)
+            bool next = true;
+            while (end)
             {
-                try
+                if(next)
                 {
                     IPAddress ipAd = IPAddress.Parse("127.0.0.1");//ip serwera
                     TcpListener myList = new TcpListener(ipAd, 8001);//ip portu
-                    myList.Start();
-                    Socket s = myList.AcceptSocket();
-                    byte[] b = new byte[100];
-                    int k = s.Receive(b);//odczytanie tekstu od klienta
-                    string tekst = "";
-                    for (int i = 0; i < k; i++)tekst+=Convert.ToChar(b[i]);
-                    //MessageBox.Show(tekst);//wypisanie wczytanego tekstu
+                    //myList.Start();
+                    //Socket s = myList.AcceptSocket();
+                    mut.WaitOne();
+                    l_Sockets.Add(myList);
+                    l_Sockets.First<TcpListener>().Start();
+                    mut.ReleaseMutex();
+                    next = false;
+                }
+                
 
-                    string[] splited = tekst.Split(' ');
-                    OleDbConnection connection = new OleDbConnection(source);
+                mut.WaitOne();
+                if(l_Sockets.Count==0|| l_Sockets.Last<TcpListener>().Pending())
+                {
+                    next = true;
+                }
+                mut.ReleaseMutex();
 
-                    connection.Open();//poszukiwanie loginu i hasla
-                    string query = "SELECT * FROM Pracownicy";
-                    OleDbCommand command = new OleDbCommand(query, connection);
-                    OleDbDataAdapter AdapterTabela = new OleDbDataAdapter(command);
-                    ASCIIEncoding asen;
-                    DataSet data = new DataSet();
-                    AdapterTabela.Fill(data, "Pracownicy");
-                    string wartosc;
-                    string aktywny;
-                    for (int a = 0; a < data.Tables["Pracownicy"].Rows.Count; a++)
+
+                //s.Close();
+                //myList.Stop();
+            }
+        }
+        private void Performer(object objParam)
+        {
+            Socket s;
+            while (end)
+            {
+                
+                try
+                {
+                    mut.WaitOne();
+                    if (l_Sockets.Count != 0)
                     {
-                        wartosc = data.Tables["Pracownicy"].Rows[a]["Login"].ToString();
-                        aktywny = data.Tables["Pracownicy"].Rows[a]["Aktywny"].ToString();
+                        //l_Sockets.First<TcpListener>().Start();
+                        //Socket s = l_Sockets.First<Socket>();
+                        s = l_Sockets.First<TcpListener>().AcceptSocket();
+                        //l_Sockets.RemoveAt(0);
+                        mut.ReleaseMutex();
+                        ASCIIEncoding asen;
 
-                        if (wartosc == splited[0])
+                        byte[] b = new byte[100];
+                        int k = s.Receive(b);//odczytanie tekstu od klienta
+                        string tekst = "";
+                        for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
+                        if (tekst == "O")
                         {
-                            string haslo = data.Tables["Pracownicy"].Rows[a]["Hasło"].ToString();
-                            if (haslo == splited[1])
+                            string order="";// lista obiektów identyfikowanych przez ID
+                            asen = new ASCIIEncoding();//odpowiedz do klienta
+                            s.Send(asen.GetBytes("OK"));
+                            b = new byte[100];
+                            k = s.Receive(b);//odczytanie tekstu od klienta
+                            tekst = "";
+                            for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
+                            int ilosc = Convert.ToInt32(tekst);
+                            s.Send(asen.GetBytes("OK"));
+                            //wczytywanie listy zamówień
+                            for (int i=0;i<ilosc;i++)
                             {
-                                asen = new ASCIIEncoding();//opwoiedz do klienta
-                                s.Send(asen.GetBytes("C"));
-                                //wysyłanie danych do klienta
-                                StreamReader sr = new StreamReader(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.txt"));
-                                string text = sr.ReadLine();
-                                do//przesłanie ilości obiektów dla klienta
+                                b = new byte[100];
+                                k = s.Receive(b);//odczytanie tekstu od klienta
+                                s.Send(asen.GetBytes("OK"));
+                                tekst = "";
+                                for (int j = 0; j < k; j++) tekst += Convert.ToChar(b[j]);
+                                order += tekst + " ";
+                            }
+                            string[] split = order.Split(' ');
+                            ilosc = split.Length-1;
+                            //MessageBox.Show(order);
+                            // tu trzeba opracować kod który bedzie realizował zamówienie
+                            try
+                            {
+                                string connString = source;
+                                OleDbConnection connection = new OleDbConnection(connString);
+                                connection.Open();
+                                string query = "SELECT * FROM SkładnikMenu";
+                                OleDbCommand command = new OleDbCommand(query, connection);
+                                OleDbDataAdapter AdapterTabela = new OleDbDataAdapter(command);
+                                DataSet data = new DataSet();
+                                AdapterTabela.Fill(data, "SkładnikMenu");
+                                string wartosc;
+                                for (int a = 0; a < data.Tables["SkładnikMenu"].Rows.Count; a++)
                                 {
-                                    b = new byte[100];
-                                    s.Send(asen.GetBytes(text));
-                                    k = s.Receive(b);//odczytanie tekstu od klienta
-                                    tekst = "";
-                                    for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
-                                } while (tekst!="OK");
-                                MessageBox.Show("Ilosc przeslana");
-                                int ilosc = Convert.ToInt32(text);
-                                for(int i=0;i<ilosc;i++)
-                                {
-                                    do
-                                    {
-                                        MessageBox.Show("Server stop1");
-                                        text = sr.ReadLine();
-                                        s.Send(asen.GetBytes(text));
-                                        k = s.Receive(b);//odczytanie tekstu od klienta
-                                        tekst = "";
-                                        for (int j = 0; j < k; j++) tekst += Convert.ToChar(b[j]);
-                                    } while (tekst != "OK");
+                                    wartosc = data.Tables["SkładnikMenu"].Rows[a][2].ToString();
+                                    SkładnikMenu składnik = new SkładnikMenu();
+                                    wartosc = zwrocKategorie(Convert.ToInt32(wartosc).ToString());
+                                    składnik.RodzajSM = wartosc;
+                                    składnik.NazwaSM = data.Tables["SkładnikMenu"].Rows[a][1].ToString();
+                                    wartosc = data.Tables["SkładnikMenu"].Rows[a][0].ToString();
+                                    składnik.IdSM = Int16.Parse(wartosc);
+                                    wartosc = data.Tables["SkładnikMenu"].Rows[a][3].ToString();
+                                    składnik.CenaSM = Double.Parse(wartosc);
+                                    wartosc = data.Tables["SkładnikMenu"].Rows[a][4].ToString();
+                                    składnik.DataDodaniaSM = DateTime.Parse(wartosc);
+                                    listaSM.Add(składnik);
                                 }
-                                sr.Close();
+                                connection.Close();
 
                             }
-                            else
+                            catch
                             {
-                                asen = new ASCIIEncoding();//opwoiedz do klienta
-                                s.Send(asen.GetBytes("W"));
+                                MessageBox.Show("Błąd odczytywania menu");
+
+                            }
+                            double cena = 0.0;
+                            string produkty = "";
+                            for(int a=0;a<ilosc;a++)
+                            {
+                                foreach (var skladnik in listaSM)
+                                {
+                                    if (skladnik.IdSM == Convert.ToInt32(split[a]))
+                                    {
+                                        cena += skladnik.CenaSM;
+                                        produkty += skladnik.NazwaSM + ", ";
+                                        break;
+                                    }
+                                }
+                            }
+                            tekst = "";
+                            DopiszZamowienie(produkty, cena);//wpisanie zamówienia do bazy
+                        }
+                        if (tekst == "L")//Logowanie
+                        {
+                            asen = new ASCIIEncoding();//odpowiedz do klienta
+                            s.Send(asen.GetBytes("OK"));
+                            b = new byte[100];
+                            k = s.Receive(b);//odczytanie tekstu od klienta
+                            tekst = "";
+                            for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
+                            string[] splited = tekst.Split(' ');
+
+                            OleDbConnection connection = new OleDbConnection(source);
+                            connection.Open();//poszukiwanie loginu i hasla
+                            string query = "SELECT * FROM Pracownicy";
+                            OleDbCommand command = new OleDbCommand(query, connection);
+                            OleDbDataAdapter AdapterTabela = new OleDbDataAdapter(command);
+                            DataSet data = new DataSet();
+                            AdapterTabela.Fill(data, "Pracownicy");
+                            string wartosc;
+                            string aktywny;
+                            for (int a = 0; a < data.Tables["Pracownicy"].Rows.Count; a++)
+                            {
+                                wartosc = data.Tables["Pracownicy"].Rows[a]["Login"].ToString();
+                                aktywny = data.Tables["Pracownicy"].Rows[a]["Aktywny"].ToString();
+
+                                if (wartosc == splited[0])
+                                {
+                                    string haslo = data.Tables["Pracownicy"].Rows[a]["Hasło"].ToString();
+                                    if (haslo == splited[1])
+                                    {
+                                        asen = new ASCIIEncoding();//opwoiedz do klienta
+                                        s.Send(asen.GetBytes("C"));
+                                        string filename = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.txt");
+                                        s.SendFile(filename);
+                                    }
+                                    else
+                                    {
+                                        asen = new ASCIIEncoding();//opwoiedz do klienta
+                                        s.Send(asen.GetBytes("W"));
+                                    }
+                                }
+                                else
+                                {
+                                    asen = new ASCIIEncoding();//opwoiedz do klienta
+                                    s.Send(asen.GetBytes("W"));
+                                }
                             }
                         }
-                        else
-                        {
-                            asen = new ASCIIEncoding();//opwoiedz do klienta
-                            s.Send(asen.GetBytes("W"));
-                        }
+                        s.Close();
+                        mut.WaitOne();
+                        l_Sockets.First<TcpListener>().Stop();
+                        l_Sockets.RemoveAt(0);
+                        mut.ReleaseMutex();
                     }
-                    s.Close();
-                    myList.Stop();
-                    
-
+                    else
+                    {
+                        mut.ReleaseMutex();
+                    }
                 }
                 catch (Exception e)
                 {
+                    mut.WaitOne();
+                    l_Sockets.First<TcpListener>().Stop();
+                    l_Sockets.RemoveAt(0);
+                    mut.ReleaseMutex();
                     Console.WriteLine("Error..... " + e.StackTrace);
                 }
+                
             }
-            
+        }
+        string zwrocKategorie(string a)
+        {
+            OleDbConnection connection = new OleDbConnection(source);
+            connection.Open();
+            string query = "SELECT NazwaKategorii FROM Kategoria WHERE Identyfikator = " + a + ";";
+
+            OleDbCommand command1 = new OleDbCommand(query, connection);
+            OleDbDataAdapter AdapterTabela1 = new OleDbDataAdapter(command1);
+            DataSet data = new DataSet();
+            AdapterTabela1.Fill(data, "Kategoria");
+            a = data.Tables["Kategoria"].Rows[0][0].ToString();
+            connection.Close();
+            return a;
         }
 
         public Form1()
@@ -179,7 +326,9 @@ namespace WokItEasy
             ParametryWatku parametry = new ParametryWatku();
             parametry.id = 1;
             parametry.synchro = WindowsFormsSynchronizationContext.Current.CreateCopy();
-            new Thread(Watek).Start(parametry);
+            //new Thread(Watek).Start(parametry);
+            new Thread(Listener).Start(parametry);
+            new Thread(Performer).Start(parametry);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -209,6 +358,8 @@ namespace WokItEasy
 
         private void button5_Click(object sender, EventArgs e)
         {
+          
+            end = false;
             this.Close();
         }
 
