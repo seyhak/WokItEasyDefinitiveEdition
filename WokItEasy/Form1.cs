@@ -124,18 +124,12 @@ namespace WokItEasy
                     mut.ReleaseMutex();
                     next = false;
                 }
-                
-
                 mut.WaitOne();
                 if(l_Sockets.Count==0|| l_Sockets.Last<TcpListener>().Pending())
                 {
                     next = true;
                 }
                 mut.ReleaseMutex();
-
-
-                //s.Close();
-                //myList.Stop();
             }
         }
         private void Performer(object objParam)
@@ -149,10 +143,7 @@ namespace WokItEasy
                     mut.WaitOne();
                     if (l_Sockets.Count != 0)
                     {
-                        //l_Sockets.First<TcpListener>().Start();
-                        //Socket s = l_Sockets.First<Socket>();
                         s = l_Sockets.First<TcpListener>().AcceptSocket();
-                        //l_Sockets.RemoveAt(0);
                         mut.ReleaseMutex();
                         ASCIIEncoding asen;
 
