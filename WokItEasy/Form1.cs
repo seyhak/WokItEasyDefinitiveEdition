@@ -317,7 +317,6 @@ namespace WokItEasy
             ParametryWatku parametry = new ParametryWatku();
             parametry.id = 1;
             parametry.synchro = WindowsFormsSynchronizationContext.Current.CreateCopy();
-            //new Thread(Watek).Start(parametry);
             new Thread(Listener).Start(parametry);
             new Thread(Performer).Start(parametry);
         }
