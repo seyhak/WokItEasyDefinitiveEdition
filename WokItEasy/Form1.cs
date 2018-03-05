@@ -51,7 +51,7 @@ namespace WokItEasy
             OleDbDataAdapter AdapterTab = new OleDbDataAdapter(comm);
             DataSet data1 = new DataSet();
             AdapterTab.Fill(data1, "Zamówienia");
-            MessageBox.Show("Sukces");
+            //MessageBox.Show("Sukces");
         }
         private void XMLConvert() //Konwersja do XML oraz do txt
         {
