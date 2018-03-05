@@ -8,10 +8,7 @@ namespace WokItEasy
 {
     class SkładnikMenu
     {
-        enum Rodzaj
-        {
-            Podstawa,Baza,Sos,Posypka,Inne,Napoje,
-        }
+      
         private int idSM;
         private string nazwaSM;
         private string rodzajSM;
