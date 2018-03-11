@@ -55,7 +55,10 @@ namespace WokItEasy
             OleDbDataAdapter AdapterTab = new OleDbDataAdapter(comm);
             DataSet data1 = new DataSet();
             AdapterTab.Fill(data1, "Zamówienia");
+<<<<<<< HEAD
             conn.Close();
+=======
+>>>>>>> d2fbe9a51f69e3fcf2842982410547f0b18907d2
             //MessageBox.Show("Sukces");
         }
         private void XMLConvert() //Konwersja do XML oraz do txt
@@ -378,6 +381,14 @@ namespace WokItEasy
         public Form1()
         {
             InitializeComponent();
+<<<<<<< HEAD
+=======
+            ParametryWatku parametry = new ParametryWatku();
+            parametry.id = 1;
+            parametry.synchro = WindowsFormsSynchronizationContext.Current.CreateCopy();
+            new Thread(Listener).Start(parametry);
+            new Thread(Performer).Start(parametry);
+>>>>>>> d2fbe9a51f69e3fcf2842982410547f0b18907d2
         }
 
         private void button1_Click(object sender, EventArgs e)
