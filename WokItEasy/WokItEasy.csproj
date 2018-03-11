@@ -105,6 +105,7 @@
       <DependentUpon>Rozliczenie.cs</DependentUpon>
     </Compile>
     <Compile Include="SkładnikMenu.cs" />
+    <Compile Include="Szyfrowanie.cs" />
     <Compile Include="Użytkownik.cs" />
     <Compile Include="WokItEasyDataSet.Designer.cs">
       <AutoGen>True</AutoGen>

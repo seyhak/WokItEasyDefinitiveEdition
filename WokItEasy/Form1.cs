@@ -20,6 +20,10 @@ namespace WokItEasy
     {
         List<SkładnikMenu> listaSM = new List<SkładnikMenu>();
         List<TcpListener> l_Sockets = new List<TcpListener>();
+        List<string> l_Zalogowani = new List<string>();
+        string encryptyingCode = "FISH!";
+        Thread t_Listen;
+        Thread t_Perform;
         private bool end = true;
         private static Mutex mut = new Mutex();
         static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source = " + System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.mdb");
@@ -30,7 +34,7 @@ namespace WokItEasy
 
         internal static Użytkownik ObecnieZalogowanyUżytkownik { get => obecnieZalogowanyUżytkownik; set => obecnieZalogowanyUżytkownik = value; }
 
-        private void DopiszZamowienie(string produkty, double cena)
+        private void DopiszZamowienie(string produkty, double cena, int id)
         {
             string connectionString = source;
             OleDbConnection conn = new OleDbConnection(connectionString);
@@ -42,7 +46,7 @@ namespace WokItEasy
             query1 += "', '";
             query1 += produkty;
             query1 += "', ";
-            query1 += Form1.ObecnieZalogowanyUżytkownik.Id.ToString();// tu trzeba bedzie dać ID pracownika z konta klienta który przesłał zamówienie
+            query1 += Convert.ToString(id);// tu trzeba bedzie dać ID pracownika z konta klienta który przesłał zamówienie
             query1 += ", ";
             query1 += "True";
             query1 += ", ";
@@ -51,7 +55,8 @@ namespace WokItEasy
             OleDbDataAdapter AdapterTab = new OleDbDataAdapter(comm);
             DataSet data1 = new DataSet();
             AdapterTab.Fill(data1, "Zamówienia");
-            MessageBox.Show("Sukces");
+            conn.Close();
+            //MessageBox.Show("Sukces");
         }
         private void XMLConvert() //Konwersja do XML oraz do txt
         {
@@ -109,6 +114,7 @@ namespace WokItEasy
         }
         private void Listener(object objParam)
         {
+            if (!end) t_Listen.Abort();
             bool next = true;
             while (end)
             {
@@ -135,6 +141,7 @@ namespace WokItEasy
         private void Performer(object objParam)
         {
             Socket s;
+            if (!end) t_Perform.Abort();
             while (end)
             {
                 
@@ -146,30 +153,54 @@ namespace WokItEasy
                         s = l_Sockets.First<TcpListener>().AcceptSocket();
                         mut.ReleaseMutex();
                         ASCIIEncoding asen;
-
-                        byte[] b = new byte[100];
+                        string str;
+                        byte[] b = new byte[256];
                         int k = s.Receive(b);//odczytanie tekstu od klienta
                         string tekst = "";
                         for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
+                        tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
+                        if (tekst=="W")
+                        {
+                            asen = new ASCIIEncoding();//odpowiedz do klienta
+                            s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
+                            b = new byte[256];
+                            k = s.Receive(b);//odczytanie ilosc w zamowieniu od klienta
+                            tekst = "";
+                            for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
+                            tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
+                            string loginDoWylogowania = tekst;
+                            l_Zalogowani.Remove(loginDoWylogowania);
+                        }
                         if (tekst == "O")
                         {
                             string order="";// lista obiektów identyfikowanych przez ID
                             asen = new ASCIIEncoding();//odpowiedz do klienta
-                            s.Send(asen.GetBytes("OK"));
-                            b = new byte[100];
-                            k = s.Receive(b);//odczytanie tekstu od klienta
+                            s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
+                            b = new byte[256];
+                            k = s.Receive(b);//odczytanie ilosc w zamowieniu od klienta
                             tekst = "";
                             for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
+                            tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
                             int ilosc = Convert.ToInt32(tekst);
-                            s.Send(asen.GetBytes("OK"));
+                            s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
+
+                            b = new byte[256];
+                            k = s.Receive(b);//odczytanie id od klienta
+                            tekst = "";
+                            for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
+                            tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
+                            int idTarget = Convert.ToInt32(tekst);
+                            s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
+
                             //wczytywanie listy zamówień
                             for (int i=0;i<ilosc;i++)
                             {
-                                b = new byte[100];
+                                b = new byte[300];
                                 k = s.Receive(b);//odczytanie tekstu od klienta
-                                s.Send(asen.GetBytes("OK"));
+                                s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
                                 tekst = "";
                                 for (int j = 0; j < k; j++) tekst += Convert.ToChar(b[j]);
+                                tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
                                 order += tekst + " ";
                             }
                             string[] split = order.Split(' ');
@@ -225,16 +256,19 @@ namespace WokItEasy
                                 }
                             }
                             tekst = "";
-                            DopiszZamowienie(produkty, cena);//wpisanie zamówienia do bazy
+                            DopiszZamowienie(produkty, cena, idTarget);//wpisanie zamówienia do bazy
                         }
                         if (tekst == "L")//Logowanie
                         {
                             asen = new ASCIIEncoding();//odpowiedz do klienta
-                            s.Send(asen.GetBytes("OK"));
-                            b = new byte[100];
+                            str= Szyfrowanie.Encrypt("OK", encryptyingCode);
+                            s.Send(asen.GetBytes(str));
+                            b = new byte[256];
                             k = s.Receive(b);//odczytanie tekstu od klienta
                             tekst = "";
+                           
                             for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
+                            tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
                             string[] splited = tekst.Split(' ');
 
                             OleDbConnection connection = new OleDbConnection(source);
@@ -256,23 +290,51 @@ namespace WokItEasy
                                     string haslo = data.Tables["Pracownicy"].Rows[a]["Hasło"].ToString();
                                     if (haslo == splited[1])
                                     {
-                                        asen = new ASCIIEncoding();//opwoiedz do klienta
-                                        s.Send(asen.GetBytes("C"));
-                                        string filename = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.txt");
-                                        s.SendFile(filename);
+                                        bool free = true;
+                                        foreach (string log in l_Zalogowani)
+                                        {
+                                            if (log == splited[0])
+                                            {
+                                                free = false;
+                                            }
+                                        }
+                                        if (free)
+                                        {
+                                            string ID = data.Tables["Pracownicy"].Rows[a]["IDPracownika"].ToString();
+                                            l_Zalogowani.Add(splited[0]);
+                                            asen = new ASCIIEncoding();//opwoiedz do klienta
+                                            str = Szyfrowanie.Encrypt("C", encryptyingCode);
+                                            s.Send(asen.GetBytes(str));
+
+                                            str = Szyfrowanie.Encrypt(ID, encryptyingCode);
+                                            s.Send(asen.GetBytes(str));
+
+                                            string filename = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.txt");
+                                            s.SendFile(filename);
+                                        }
+                                        else
+                                        {
+                                            asen = new ASCIIEncoding();//opwoiedz do klienta
+                                            str = Szyfrowanie.Encrypt("W", encryptyingCode);
+                                            s.Send(asen.GetBytes(str));
+                                        }
+                                        
                                     }
                                     else
                                     {
                                         asen = new ASCIIEncoding();//opwoiedz do klienta
-                                        s.Send(asen.GetBytes("W"));
+                                        str = Szyfrowanie.Encrypt("W", encryptyingCode);
+                                        s.Send(asen.GetBytes(str));
                                     }
                                 }
-                                else
+                                else if(a==(data.Tables["Pracownicy"].Rows.Count)-1)
                                 {
                                     asen = new ASCIIEncoding();//opwoiedz do klienta
-                                    s.Send(asen.GetBytes("W"));
+                                    str = Szyfrowanie.Encrypt("W", encryptyingCode);
+                                    s.Send(asen.GetBytes(str));
                                 }
                             }
+                            connection.Close();
                         }
                         s.Close();
                         mut.WaitOne();
@@ -284,6 +346,7 @@ namespace WokItEasy
                     {
                         mut.ReleaseMutex();
                     }
+                    
                 }
                 catch (Exception e)
                 {
@@ -293,8 +356,9 @@ namespace WokItEasy
                     mut.ReleaseMutex();
                     Console.WriteLine("Error..... " + e.StackTrace);
                 }
-                
+
             }
+            
         }
         string zwrocKategorie(string a)
         {
@@ -314,12 +378,6 @@ namespace WokItEasy
         public Form1()
         {
             InitializeComponent();
-            ParametryWatku parametry = new ParametryWatku();
-            parametry.id = 1;
-            parametry.synchro = WindowsFormsSynchronizationContext.Current.CreateCopy();
-            //new Thread(Watek).Start(parametry);
-            new Thread(Listener).Start(parametry);
-            new Thread(Performer).Start(parametry);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -393,6 +451,17 @@ namespace WokItEasy
                         {
                             //jeśli się udało zaloguj i zapisz w klasie
                             XMLConvert();//Wywołanie konwersji
+                            l_Zalogowani.Add(textBox1.Text);
+
+                            
+                            ParametryWatku parametry = new ParametryWatku(); //aktywacja wątków
+                            parametry.id = 1;
+                            parametry.synchro = WindowsFormsSynchronizationContext.Current.CreateCopy();
+                            //new Thread(Watek).Start(parametry);
+                            t_Listen= new Thread(Listener);
+                            t_Listen.Start(parametry);
+                            t_Perform = new Thread(Performer);
+                            t_Perform.Start(parametry);
                             string temp = data.Tables["Pracownicy"].Rows[a][0].ToString();
                             ObecnieZalogowanyUżytkownik.Id = Int16.Parse(temp);
 
@@ -463,6 +532,10 @@ namespace WokItEasy
             button8.Visible = false ;
             pictureBox1.Visible = true;
             ObecnieZalogowanyUżytkownik = new Użytkownik();
+            l_Zalogowani.Clear();
+            end = true;
+           // t_Listen.Abort();
+            //t_Perform.Abort();
             MessageBox.Show("Wylogowano");
         }
 
