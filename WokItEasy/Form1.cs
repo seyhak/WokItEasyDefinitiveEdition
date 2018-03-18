@@ -85,9 +85,6 @@ namespace WokItEasy
                 }
                 connnection.Close();
             }
-
-            string name =System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.xml");
-            dataSet.WriteXml(name);
         }
         private static void FillTable(DataSet dataSet, OleDbConnection conn, string tableName)// Funkcja pomocnicza do konwersji
         {
