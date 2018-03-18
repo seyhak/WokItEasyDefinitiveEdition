@@ -26,6 +26,7 @@ namespace WokItEasy
         Thread t_Perform;
         private bool end = true;
         private static Mutex mut = new Mutex();
+        private static Mutex mut2 = new Mutex();
         static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source = " + System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.mdb");
       
         //static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Przemek\Desktop\repozytorium\WokItEasy\WokItEasy1.mdb";
@@ -170,7 +171,15 @@ namespace WokItEasy
                             for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
                             tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
                             string loginDoWylogowania = tekst;
-                            l_Zalogowani.Remove(loginDoWylogowania);
+                            int tmp = 0;
+                            mut2.WaitOne();
+                            foreach (string st in l_Zalogowani)
+                            {
+                                if(st==loginDoWylogowania) l_Zalogowani.RemoveAt(tmp);
+                                tmp++;
+                            }
+                            mut2.ReleaseMutex();
+                            
                         }
                         if (tekst == "O")
                         {
@@ -292,6 +301,7 @@ namespace WokItEasy
                                     if (haslo == splited[1])
                                     {
                                         bool free = true;
+                                        mut2.WaitOne();
                                         foreach (string log in l_Zalogowani)
                                         {
                                             if (log == splited[0])
@@ -299,6 +309,7 @@ namespace WokItEasy
                                                 free = false;
                                             }
                                         }
+                                        mut2.ReleaseMutex();
                                         if (free)
                                         {
                                             string ID = data.Tables["Pracownicy"].Rows[a]["IDPracownika"].ToString();
@@ -379,11 +390,11 @@ namespace WokItEasy
         public Form1()
         {
             InitializeComponent();
-            ParametryWatku parametry = new ParametryWatku();
-            parametry.id = 1;
-            parametry.synchro = WindowsFormsSynchronizationContext.Current.CreateCopy();
-            new Thread(Listener).Start(parametry);
-            new Thread(Performer).Start(parametry);
+            //ParametryWatku parametry = new ParametryWatku();
+            //parametry.id = 1;
+            //parametry.synchro = WindowsFormsSynchronizationContext.Current.CreateCopy();
+            //new Thread(Listener).Start(parametry);
+            //new Thread(Performer).Start(parametry);
         }
 
         private void button1_Click(object sender, EventArgs e)
