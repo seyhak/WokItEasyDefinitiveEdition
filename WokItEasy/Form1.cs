@@ -157,16 +157,17 @@ namespace WokItEasy
                         int k = s.Receive(b);//odczytanie tekstu od klienta
                         string tekst = "";
                         for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
-                        tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
-                        if (tekst=="W")
+                        //tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
+                        if (tekst=="W")//Wylogowanie
                         {
                             asen = new ASCIIEncoding();//odpowiedz do klienta
-                            s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
+                            //s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
+                            s.Send(asen.GetBytes("OK"));
                             b = new byte[256];
                             k = s.Receive(b);//odczytanie ilosc w zamowieniu od klienta
                             tekst = "";
                             for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
-                            tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
+                            //tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
                             string loginDoWylogowania = tekst;
                             int tmp = 0;
                             mut2.WaitOne();
@@ -178,36 +179,40 @@ namespace WokItEasy
                             mut2.ReleaseMutex();
                             
                         }
-                        if (tekst == "O")
+                        if (tekst == "O")//Zamówienia
                         {
                             string order="";// lista obiektów identyfikowanych przez ID
                             asen = new ASCIIEncoding();//odpowiedz do klienta
-                            s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
+                            //s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
+                            s.Send(asen.GetBytes("OK"));
                             b = new byte[256];
                             k = s.Receive(b);//odczytanie ilosc w zamowieniu od klienta
                             tekst = "";
                             for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
-                            tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
+                           // tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
                             int ilosc = Convert.ToInt32(tekst);
-                            s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
+                            // s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
+                            s.Send(asen.GetBytes("OK"));
 
                             b = new byte[256];
                             k = s.Receive(b);//odczytanie id od klienta
                             tekst = "";
                             for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
-                            tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
+                           // tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
                             int idTarget = Convert.ToInt32(tekst);
-                            s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
+                            //s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
+                            s.Send(asen.GetBytes("OK"));
 
                             //wczytywanie listy zamówień
                             for (int i=0;i<ilosc;i++)
                             {
                                 b = new byte[300];
                                 k = s.Receive(b);//odczytanie tekstu od klienta
-                                s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
+                                //s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
+                                s.Send(asen.GetBytes("OK"));
                                 tekst = "";
                                 for (int j = 0; j < k; j++) tekst += Convert.ToChar(b[j]);
-                                tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
+                                //tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
                                 order += tekst + " ";
                             }
                             string[] split = order.Split(' ');
@@ -268,14 +273,16 @@ namespace WokItEasy
                         if (tekst == "L")//Logowanie
                         {
                             asen = new ASCIIEncoding();//odpowiedz do klienta
-                            str= Szyfrowanie.Encrypt("OK", encryptyingCode);
+                            //str= Szyfrowanie.Encrypt("OK", encryptyingCode);
+                            str = "OK";
+                            s.Send(asen.GetBytes(LengthConverter.Convert(str.Length)));//długość słowa
                             s.Send(asen.GetBytes(str));
                             b = new byte[256];
                             k = s.Receive(b);//odczytanie tekstu od klienta
                             tekst = "";
                            
                             for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
-                            tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
+                            //tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
                             string[] splited = tekst.Split(' ');
 
                             OleDbConnection connection = new OleDbConnection(source);
@@ -307,41 +314,32 @@ namespace WokItEasy
                                             }
                                         }
                                         mut2.ReleaseMutex();
-                                        if (free)
+                                        if (free)//jeżeli jest połączony to "C"
                                         {
                                             string ID = data.Tables["Pracownicy"].Rows[a]["IDPracownika"].ToString();
                                             l_Zalogowani.Add(splited[0]);
                                             asen = new ASCIIEncoding();//opwoiedz do klienta
-                                            str = Szyfrowanie.Encrypt("C", encryptyingCode);
-                                            s.Send(asen.GetBytes(str));
+                                            //str = Szyfrowanie.Encrypt("C", encryptyingCode);
+                                            str = "C";
+                                            s.Send(asen.GetBytes(LengthConverter.Convert(str.Length)));//długość słowa
+                                            s.Send(asen.GetBytes(str)); ;
 
-                                            str = Szyfrowanie.Encrypt(ID, encryptyingCode);
+                                            //str = Szyfrowanie.Encrypt(ID, encryptyingCode);
                                             s.Send(asen.GetBytes(str));
 
                                             string filename = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.txt");
                                             s.SendFile(filename);
                                         }
-                                        else
-                                        {
-                                            asen = new ASCIIEncoding();//opwoiedz do klienta
-                                            str = Szyfrowanie.Encrypt("W", encryptyingCode);
-                                            s.Send(asen.GetBytes(str));
-                                        }
                                         
                                     }
-                                    else
-                                    {
-                                        asen = new ASCIIEncoding();//opwoiedz do klienta
-                                        str = Szyfrowanie.Encrypt("W", encryptyingCode);
-                                        s.Send(asen.GetBytes(str));
-                                    }
                                 }
-                                else if(a==(data.Tables["Pracownicy"].Rows.Count)-1)
-                                {
-                                    asen = new ASCIIEncoding();//opwoiedz do klienta
-                                    str = Szyfrowanie.Encrypt("W", encryptyingCode);
-                                    s.Send(asen.GetBytes(str));
-                                }
+                                //else if(a==(data.Tables["Pracownicy"].Rows.Count)-1)
+                                //{
+                                //    asen = new ASCIIEncoding();//opwoiedz do klienta
+                                //    //str = Szyfrowanie.Encrypt("W", encryptyingCode);
+                                //    str = "W";
+                                //    s.Send(asen.GetBytes(str));
+                                //}
                             }
                             connection.Close();
                         }
