@@ -29,36 +29,11 @@ namespace WokItEasy
         private static Mutex mut2 = new Mutex();
         static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source = " + System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.mdb");
       
-        //static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Przemek\Desktop\repozytorium\WokItEasy\WokItEasy1.mdb";
-      
         private static Użytkownik obecnieZalogowanyUżytkownik = new Użytkownik();
 
         internal static Użytkownik ObecnieZalogowanyUżytkownik { get => obecnieZalogowanyUżytkownik; set => obecnieZalogowanyUżytkownik = value; }
 
-        private void DopiszZamowienie(string produkty, double cena, int id)
-        {
-            string connectionString = source;
-            OleDbConnection conn = new OleDbConnection(connectionString);
-            conn.Open();
-            string query1 = "INSERT INTO Zamówienia (DataZamówienia, KwotaZamówienia, IDSM, IDObsługi, Online, Rozliczone) VALUES('";
-            query1 += DateTime.Now.ToString();
-            query1 += "', '";
-            query1 += cena;
-            query1 += "', '";
-            query1 += produkty;
-            query1 += "', ";
-            query1 += Convert.ToString(id);// tu trzeba bedzie dać ID pracownika z konta klienta który przesłał zamówienie
-            query1 += ", ";
-            query1 += "True";
-            query1 += ", ";
-            query1 += "False);";
-            OleDbCommand comm = new OleDbCommand(query1, conn);
-            OleDbDataAdapter AdapterTab = new OleDbDataAdapter(comm);
-            DataSet data1 = new DataSet();
-            AdapterTab.Fill(data1, "Zamówienia");
-            conn.Close();
-
-        }
+        
         private void XMLConvert() //Konwersja do XML oraz do txt
         {
             DataSet dataSet = new DataSet();
@@ -138,6 +113,9 @@ namespace WokItEasy
         }
         private void Performer(object objParam)
         {
+
+            //zbudowanie listy
+            listaSM = SkładnikMenu.Zbuduj(source);
             Socket s;
             if (!end) t_Perform.Abort();
             while (end)
@@ -158,7 +136,8 @@ namespace WokItEasy
                         string tekst = "";
                         for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
                         //tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
-                        if (tekst=="W")//Wylogowanie
+                        switch (tekst) {
+                            case "W"://Wylogowanie
                         {
                             asen = new ASCIIEncoding();//odpowiedz do klienta
                             //s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
@@ -173,117 +152,89 @@ namespace WokItEasy
                             mut2.WaitOne();
                             foreach (string st in l_Zalogowani)
                             {
-                                if(st==loginDoWylogowania) l_Zalogowani.RemoveAt(tmp);
+                                if (st == loginDoWylogowania) l_Zalogowani.RemoveAt(tmp);
                                 tmp++;
                             }
                             mut2.ReleaseMutex();
-                            
+                                    continue;
                         }
-                        if (tekst == "O")//Zamówienia
+                            case "O"://Zamówienia
                         {
-                            string order="";// lista obiektów identyfikowanych przez ID
-                            asen = new ASCIIEncoding();//odpowiedz do klienta
-                            //s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
-                            s.Send(asen.GetBytes("OK"));
-                            b = new byte[256];
-                            k = s.Receive(b);//odczytanie ilosc w zamowieniu od klienta
-                            tekst = "";
-                            for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
-                           // tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
-                            int ilosc = Convert.ToInt32(tekst);
-                            // s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
-                            s.Send(asen.GetBytes("OK"));
+                                    string order = "";// lista obiektów identyfikowanych przez ID
+                                    asen = new ASCIIEncoding();//odpowiedz do klienta
+                                    str = "OK";
+                                    s.Send(asen.GetBytes(LengthConverter.Convert(str.Length)));//długość słowa
+                                    s.Send(asen.GetBytes(str));
+                                    Thread.Sleep(400);//poczekaj aż klient wykona stringa
+                                    b = new byte[2560];
+                                    k = s.Receive(b);//odczytanie id od klienta
+                                    tekst = "";
+                                    for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
+                                    order = tekst;
 
-                            b = new byte[256];
-                            k = s.Receive(b);//odczytanie id od klienta
-                            tekst = "";
-                            for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
-                           // tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
-                            int idTarget = Convert.ToInt32(tekst);
-                            //s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
-                            s.Send(asen.GetBytes("OK"));
-
-                            //wczytywanie listy zamówień
-                            for (int i=0;i<ilosc;i++)
-                            {
-                                b = new byte[300];
-                                k = s.Receive(b);//odczytanie tekstu od klienta
-                                //s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
-                                s.Send(asen.GetBytes("OK"));
-                                tekst = "";
-                                for (int j = 0; j < k; j++) tekst += Convert.ToChar(b[j]);
-                                //tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
-                                order += tekst + " ";
-                            }
-                            string[] split = order.Split(' ');
-                            ilosc = split.Length-1;
-                            //MessageBox.Show(order);
-                            // tu trzeba opracować kod który bedzie realizował zamówienie
-                            try
-                            {
-                                string connString = source;
-                                OleDbConnection connection = new OleDbConnection(connString);
-                                connection.Open();
-                                string query = "SELECT * FROM SkładnikMenu";
-                                OleDbCommand command = new OleDbCommand(query, connection);
-                                OleDbDataAdapter AdapterTabela = new OleDbDataAdapter(command);
-                                DataSet data = new DataSet();
-                                AdapterTabela.Fill(data, "SkładnikMenu");
-                                string wartosc;
-                                for (int a = 0; a < data.Tables["SkładnikMenu"].Rows.Count; a++)
-                                {
-                                    wartosc = data.Tables["SkładnikMenu"].Rows[a][2].ToString();
-                                    SkładnikMenu składnik = new SkładnikMenu();
-                                    wartosc = zwrocKategorie(Convert.ToInt32(wartosc).ToString());
-                                    składnik.RodzajSM = wartosc;
-                                    składnik.NazwaSM = data.Tables["SkładnikMenu"].Rows[a][1].ToString();
-                                    wartosc = data.Tables["SkładnikMenu"].Rows[a][0].ToString();
-                                    składnik.IdSM = Int16.Parse(wartosc);
-                                    wartosc = data.Tables["SkładnikMenu"].Rows[a][3].ToString();
-                                    składnik.CenaSM = Double.Parse(wartosc);
-                                    wartosc = data.Tables["SkładnikMenu"].Rows[a][4].ToString();
-                                    składnik.DataDodaniaSM = DateTime.Parse(wartosc);
-                                    listaSM.Add(składnik);
-                                }
-                                connection.Close();
-
-                            }
-                            catch
-                            {
-                                MessageBox.Show("Błąd odczytywania menu");
-
-                            }
-                            double cena = 0.0;
-                            string produkty = "";
-                            for(int a=0;a<ilosc;a++)
-                            {
-                                foreach (var skladnik in listaSM)
-                                {
-                                    if (skladnik.IdSM == Convert.ToInt32(split[a]))
+                                    //wczytywanie listy zamówień
+                                    string[] split = order.Split('#');
+                                    
+                                    int idObsługi = Convert.ToInt32(split[0]);
+                                    System.Diagnostics.Debug.WriteLine("Zamówienie od: " + split[0]);
+                                    double kwota = Double.Parse(split[1]);
+                                    List<int> listIDOrders = new List<int>();
+                                    for(int v = 2; v < k; v++)
                                     {
-                                        cena += skladnik.CenaSM;
-                                        produkty += skladnik.NazwaSM + ", ";
-                                        break;
+                                        listIDOrders.Add(Convert.ToInt32(split[v]));
                                     }
+                                    System.Diagnostics.Debug.WriteLine("Zamówienie: " + listIDOrders.ToString()+" "+kwota + " " + idObsługi + " " + source);
+                                    Zamówienie.DopiszZamowieniaZListyID(listIDOrders,kwota,idObsługi, source);
+                                    System.Diagnostics.Debug.WriteLine("Dodano zamówienie");
+                                    continue;
                                 }
-                            }
-                            tekst = "";
-                            DopiszZamowienie(produkty, cena, idTarget);//wpisanie zamówienia do bazy
-                        }
-                        if (tekst == "L")//Logowanie
-                        {
+                            case "M"://Lista dań
+                                {
+                                    string position = "";
+                                    asen = new ASCIIEncoding();//odpowiedz do klienta
+                                    UTF8Encoding coderUTF = new UTF8Encoding();
+                                    //s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
+                                    str = "OK";
+                                    s.Send(asen.GetBytes(LengthConverter.Convert(str.Length)));//długość słowa
+                                    s.Send(asen.GetBytes(str));
+
+                                    //wysłanie ilości dań
+                                    System.Diagnostics.Debug.WriteLine("Sending Menu..."); 
+                                    s.Send(asen.GetBytes(LengthConverter.Convert(listaSM.Count)));//ile pozycji
+                                    foreach(SkładnikMenu sm in listaSM)
+                                    {
+                                        position = sm.getAlmostXML();
+                                        System.Diagnostics.Debug.WriteLine(position);
+                                        s.Send(coderUTF.GetBytes(LengthConverter.Convert(coderUTF.GetByteCount(position))));//długość
+                                        s.Send(coderUTF.GetBytes(position));//pozycja
+                                    }
+                                    System.Diagnostics.Debug.WriteLine("Done");
+                                    continue;
+                                }
+                            case "L"://Logowanie
+                                {
                             asen = new ASCIIEncoding();//odpowiedz do klienta
                             //str= Szyfrowanie.Encrypt("OK", encryptyingCode);
                             str = "OK";
                             s.Send(asen.GetBytes(LengthConverter.Convert(str.Length)));//długość słowa
                             s.Send(asen.GetBytes(str));
+                            Thread.Sleep(300);//inaczej pomija
                             b = new byte[256];
                             k = s.Receive(b);//odczytanie tekstu od klienta
                             tekst = "";
-                           
-                            for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
+
+                            System.Diagnostics.Debug.WriteLine(k);
+
+                            for (int i = 0; i < k; i++)
+                            { tekst += Convert.ToChar(b[i]);
+                                System.Diagnostics.Debug.Write(Convert.ToChar(b[i]) + " ");
+                            }
                             //tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
                             string[] splited = tekst.Split(' ');
+
+                            System.Diagnostics.Debug.WriteLine("");
+                            System.Diagnostics.Debug.WriteLine("Login: " + splited[0]);
+                            System.Diagnostics.Debug.WriteLine(" haslo: " + splited[1]);
 
                             OleDbConnection connection = new OleDbConnection(source);
                             connection.Open();//poszukiwanie loginu i hasla
@@ -301,10 +252,13 @@ namespace WokItEasy
 
                                 if (wartosc == splited[0])
                                 {
+
+                                    System.Diagnostics.Debug.WriteLine("Poprawny login: " + splited[0]);
                                     string haslo = data.Tables["Pracownicy"].Rows[a]["Hasło"].ToString();
                                     if (haslo == splited[1])
                                     {
-                                        bool free = true;
+                                        System.Diagnostics.Debug.WriteLine("Poprawne hasło: " + splited[1]);
+                                        bool free = true;//jeżeli jest wolny na liście
                                         mut2.WaitOne();
                                         foreach (string log in l_Zalogowani)
                                         {
@@ -314,23 +268,31 @@ namespace WokItEasy
                                             }
                                         }
                                         mut2.ReleaseMutex();
-                                        if (free)//jeżeli jest połączony to "C"
+                                        if (free || true)//jeżeli jest połączony to "C"
                                         {
+                                            System.Diagnostics.Debug.WriteLine("Wysyłanie C ");
                                             string ID = data.Tables["Pracownicy"].Rows[a]["IDPracownika"].ToString();
                                             l_Zalogowani.Add(splited[0]);
                                             asen = new ASCIIEncoding();//opwoiedz do klienta
                                             //str = Szyfrowanie.Encrypt("C", encryptyingCode);
                                             str = "C";
                                             s.Send(asen.GetBytes(LengthConverter.Convert(str.Length)));//długość słowa
-                                            s.Send(asen.GetBytes(str)); ;
-
-                                            //str = Szyfrowanie.Encrypt(ID, encryptyingCode);
+                                            s.Send(asen.GetBytes(str));
+                                            //wysyłamy ID 
+                                            str = data.Tables["Pracownicy"].Rows[a]["IDpracownika"].ToString();
+                                            System.Diagnostics.Debug.WriteLine("ID : "+str);
+                                            s.Send(asen.GetBytes(LengthConverter.Convert(str.Length)));//długość słowa
                                             s.Send(asen.GetBytes(str));
 
-                                            string filename = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.txt");
-                                            s.SendFile(filename);
+                                            //str = Szyfrowanie.Encrypt(ID, encryptyingCode);
+
+                                            //System.Diagnostics.Debug.WriteLine("Wysyłanie pliku ");
+                                            //str = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.txt");
+                                            //System.Diagnostics.Debug.WriteLine(str);
+                                            //s.Send(asen.GetBytes(LengthConverter.Convert(str.Length)));//długość słowa
+                                            //s.Send(asen.GetBytes(str)); ;
                                         }
-                                        
+
                                     }
                                 }
                                 //else if(a==(data.Tables["Pracownicy"].Rows.Count)-1)
@@ -341,7 +303,8 @@ namespace WokItEasy
                                 //    s.Send(asen.GetBytes(str));
                                 //}
                             }
-                            connection.Close();
+                            connection.Close();continue;
+                                }
                         }
                         s.Close();
                         mut.WaitOne();
