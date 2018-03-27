@@ -22,7 +22,7 @@ namespace WokItEasy
         public bool Online { get => online; set => online = value; }
         public string IdZamówień { get => idZamówień; set => idZamówień = value; }
 
-        public static void DopiszZamowienie(double cena, int[] id,string source,int idObslugi)
+        public static void DopiszZamowienie(double cena, string ids,string source,int idObslugi,bool online=true,bool rozliczone=false)
         {
             string connectionString = source;
             OleDbConnection conn = new OleDbConnection(connectionString);
@@ -32,25 +32,51 @@ namespace WokItEasy
             query1 += "', '";
             query1 += cena;
             query1 += "', '";
-            query1 += id.ToString();
+            query1 += ids;
             query1 += "', ";
-            query1 += Convert.ToString(id);// tu trzeba bedzie dać ID pracownika z konta klienta który przesłał zamówienie
+            query1 += Convert.ToString(idObslugi);// tu trzeba bedzie dać ID pracownika z konta klienta który przesłał zamówienie
             query1 += ", ";
-            query1 += "True";
+            query1 += online;
             query1 += ", ";
-            query1 += "False);";
+            query1 += rozliczone +");";
+            System.Diagnostics.Debug.WriteLine(query1);
             OleDbCommand comm = new OleDbCommand(query1, conn);
             OleDbDataAdapter AdapterTab = new OleDbDataAdapter(comm);
             DataSet data1 = new DataSet();
             AdapterTab.Fill(data1, "Zamówienia");
             conn.Close();
+            System.Diagnostics.Debug.WriteLine("Dodano");
 
         }
         
-        public static void DopiszZamowieniaZListyID(List<int> ids,double cena, int idObslugi, string source)
+        public static void DopiszZamowieniaZListyID(List<int> ids,double cena, int idObslugi, string source, bool online = true, bool rozliczone = false)
         {
-            DopiszZamowienie(cena,ids.ToArray(),source,idObslugi);
+            DopiszZamowienie(cena,idArr(ids),source,idObslugi,online,rozliczone);
 
+        }
+        private static string idArr(List<int> ids)
+        {
+            string str = "";
+            for (int s= 0;s<ids.Count;s++)
+            {
+                str += ids[s].ToString();
+                if (s != ids.Count - 1)
+                {
+                    str += ", ";
+                }
+
+            }
+            return str;
+        }
+        public static void DopiszZamowieniaZListyID(List<SkładnikMenu> listaSM, List<string> lb, double cena, string source, int idObslugi, bool online = true, bool rozliczone = false)
+        {
+           
+            List<int> idsInt = new List<int>();
+            foreach (string s in lb)
+            {
+                idsInt.Add(listaSM.Find(x => x.NazwaSM.Equals(s)).IdSM);
+            }
+            DopiszZamowieniaZListyID(idsInt, cena, idObslugi, source,online,rozliczone);
         }
     }
 }

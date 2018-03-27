@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Data.OleDb;//access
 using System.Windows.Forms;
 using System.IO;//txt
+using System.Globalization;
 
 namespace WokItEasy
 {
@@ -177,9 +178,10 @@ namespace WokItEasy
                                     
                                     int idObsługi = Convert.ToInt32(split[0]);
                                     System.Diagnostics.Debug.WriteLine("Zamówienie od: " + split[0]);
-                                    double kwota = Double.Parse(split[1]);
+                                    double kwota = 0;
+                                    kwota = Double.Parse(split[1], CultureInfo.InvariantCulture);
                                     List<int> listIDOrders = new List<int>();
-                                    for(int v = 2; v < k; v++)
+                                    for(int v = 2; v < split.Length; v++)
                                     {
                                         listIDOrders.Add(Convert.ToInt32(split[v]));
                                     }
@@ -283,25 +285,10 @@ namespace WokItEasy
                                             System.Diagnostics.Debug.WriteLine("ID : "+str);
                                             s.Send(asen.GetBytes(LengthConverter.Convert(str.Length)));//długość słowa
                                             s.Send(asen.GetBytes(str));
-
-                                            //str = Szyfrowanie.Encrypt(ID, encryptyingCode);
-
-                                            //System.Diagnostics.Debug.WriteLine("Wysyłanie pliku ");
-                                            //str = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.txt");
-                                            //System.Diagnostics.Debug.WriteLine(str);
-                                            //s.Send(asen.GetBytes(LengthConverter.Convert(str.Length)));//długość słowa
-                                            //s.Send(asen.GetBytes(str)); ;
                                         }
 
                                     }
                                 }
-                                //else if(a==(data.Tables["Pracownicy"].Rows.Count)-1)
-                                //{
-                                //    asen = new ASCIIEncoding();//opwoiedz do klienta
-                                //    //str = Szyfrowanie.Encrypt("W", encryptyingCode);
-                                //    str = "W";
-                                //    s.Send(asen.GetBytes(str));
-                                //}
                             }
                             connection.Close();continue;
                                 }
