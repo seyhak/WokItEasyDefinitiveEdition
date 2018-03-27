@@ -270,7 +270,7 @@ namespace WokItEasy
                                             }
                                         }
                                         mut2.ReleaseMutex();
-                                        if (free || true)//jeżeli jest połączony to "C"
+                                        if (free)//jeżeli jest połączony to "C"
                                         {
                                             System.Diagnostics.Debug.WriteLine("Wysyłanie C ");
                                             string ID = data.Tables["Pracownicy"].Rows[a]["IDPracownika"].ToString();
