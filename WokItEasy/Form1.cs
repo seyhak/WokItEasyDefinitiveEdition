@@ -20,7 +20,7 @@ namespace WokItEasy
     public partial class Form1 : Form
     {
         List<SkładnikMenu> listaSM = new List<SkładnikMenu>();
-        List<TcpListener> l_Sockets = new List<TcpListener>();
+        List<TcpListener> l_Listeners = new List<TcpListener>();
         List<string> l_Zalogowani = new List<string>();
         string encryptyingCode = "FISH!";
         Thread t_Listen;
@@ -89,27 +89,40 @@ namespace WokItEasy
         private void Listener(object objParam)
         {
             if (!end) t_Listen.Abort();
+            TcpListener myList=null;
             bool next = true;
             while (end)
             {
                 if(next)
                 {
                     IPAddress ipAd = IPAddress.Parse("127.0.0.1");//ip serwera
-                    TcpListener myList = new TcpListener(ipAd, 8001);//ip portu
-                    //myList.Start();
+                    myList = new TcpListener(ipAd, 8001);//ip portu
+                    myList.Start();
                     //Socket s = myList.AcceptSocket();
-                    mut.WaitOne();
-                    l_Sockets.Add(myList);
-                    l_Sockets.First<TcpListener>().Start();
-                    mut.ReleaseMutex();
+
+                    //mut.WaitOne();
+                    //l_Sockets.Add(myList);
+                    //l_Listeners.First<TcpListener>().Start();
+                    //mut.ReleaseMutex();
                     next = false;
                 }
-                mut.WaitOne();
-                if(l_Sockets.Count==0|| l_Sockets.Last<TcpListener>().Pending())
+                try
                 {
-                    next = true;
+                    if (myList.Pending())
+                    {
+                        mut.WaitOne();
+                        l_Listeners.Add(myList);
+                        myList.Stop();
+                        next = true;
+                        mut.ReleaseMutex();
+                    }
                 }
-                mut.ReleaseMutex();
+                catch
+                {
+
+                }
+                
+                
             }
         }
         private void Performer(object objParam)
@@ -125,10 +138,10 @@ namespace WokItEasy
                 try
                 {
                     mut.WaitOne();
-                    if (l_Sockets.Count != 0)
+                    if (l_Listeners.Count != 0)
                     {
                         //test
-                        s = l_Sockets.First<TcpListener>().AcceptSocket();
+                        s = l_Listeners.First<TcpListener>().AcceptSocket();
                         mut.ReleaseMutex();
                         ASCIIEncoding asen;
                         string str;
@@ -295,8 +308,8 @@ namespace WokItEasy
                         }
                         s.Close();
                         mut.WaitOne();
-                        l_Sockets.First<TcpListener>().Stop();
-                        l_Sockets.RemoveAt(0);
+                        l_Listeners.First<TcpListener>().Stop();
+                        l_Listeners.RemoveAt(0);
                         mut.ReleaseMutex();
                     }
                     else
@@ -308,8 +321,8 @@ namespace WokItEasy
                 catch (Exception e)
                 {
                     mut.WaitOne();
-                    l_Sockets.First<TcpListener>().Stop();
-                    l_Sockets.RemoveAt(0);
+                    l_Listeners.First<TcpListener>().Stop();
+                    l_Listeners.RemoveAt(0);
                     mut.ReleaseMutex();
                     Console.WriteLine("Error..... " + e.StackTrace);
                 }

@@ -10,6 +10,7 @@ namespace WokItEasy
 {
     class SkładnikMenu
     {
+        private int idRodzaj;
         private int idSM;
         private string nazwaSM;
         private string rodzajSM;
@@ -50,6 +51,7 @@ namespace WokItEasy
                     SkładnikMenu składnik = new SkładnikMenu();
                     wartosc = zwrocKategorie(Convert.ToInt32(wartosc).ToString(),source);
                     składnik.RodzajSM = wartosc;
+                    //składnik.idRodzaj = Convert.ToInt32(wartosc);
                     składnik.NazwaSM = data.Tables["SkładnikMenu"].Rows[a][1].ToString();
                     wartosc = data.Tables["SkładnikMenu"].Rows[a][0].ToString();
                     składnik.IdSM = Int16.Parse(wartosc);
@@ -71,6 +73,7 @@ namespace WokItEasy
         }
         public DateTime DataDodaniaSM { get => dataDodaniaSM; set => dataDodaniaSM = value; }
         public double CenaSM { get => cenaSM; set => cenaSM = value; }
+        public int IdRodzaj { get => idRodzaj; set => idRodzaj = value; }
         public string NazwaSM { get => nazwaSM; set => nazwaSM = value; }
         public int IdSM { get => idSM; set => idSM = value; }
         public string RodzajSM { get => rodzajSM; set => rodzajSM = value; }
