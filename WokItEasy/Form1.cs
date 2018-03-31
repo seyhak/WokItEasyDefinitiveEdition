@@ -150,7 +150,12 @@ namespace WokItEasy
                                 mut2.WaitOne();
                                 foreach (string st in l_Zalogowani)
                                 {
-                                    if (st == loginDoWylogowania) l_Zalogowani.RemoveAt(tmp);
+                                    if (st == loginDoWylogowania)
+                                    {
+                                        l_Zalogowani[tmp] = "";
+                                        l_Zalogowani.RemoveAt(tmp);
+                                    }
+                                    
                                     tmp++;
                                 }
                                 mut2.ReleaseMutex();
@@ -204,8 +209,10 @@ namespace WokItEasy
                                 {
                                     position = sm.getAlmostXML();
                                     System.Diagnostics.Debug.WriteLine(position);
-                                    s.Send(coderUTF.GetBytes(LengthConverter.Convert(coderUTF.GetByteCount(position))));//długość
+                                    s.Send(coderUTF.GetBytes(LengthConverter.Convert(coderUTF.GetByteCount(position))));//długość,
+                                    //Thread.Sleep(1000);
                                     s.Send(coderUTF.GetBytes(position));//pozycja
+                                    //Thread.Sleep(1000);
                                 }
                                 System.Diagnostics.Debug.WriteLine("Done");
                                 break;
@@ -286,87 +293,6 @@ namespace WokItEasy
                                             }
 
                                         }
-                                    }
-                                }
-                                connection.Close();
-                                break;
-                            }
-                        case "CL":
-                            {
-                                asen = new ASCIIEncoding();//odpowiedz do klienta
-                                str = Szyfrowanie.Encrypt("OK", encryptyingCode);
-                                s.Send(asen.GetBytes(str));
-                                b = new byte[256];
-                                k = s.Receive(b);//odczytanie tekstu od klienta
-                                tekst = "";
-
-                                for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
-                                tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
-                                string[] splited = tekst.Split(' ');
-
-                                OleDbConnection connection = new OleDbConnection(source);
-                                connection.Open();//poszukiwanie loginu i hasla
-                                string query = "SELECT * FROM Pracownicy";
-                                OleDbCommand command = new OleDbCommand(query, connection);
-                                OleDbDataAdapter AdapterTabela = new OleDbDataAdapter(command);
-                                DataSet data = new DataSet();
-                                AdapterTabela.Fill(data, "Pracownicy");
-                                string wartosc;
-                                string aktywny;
-                                for (int a = 0; a < data.Tables["Pracownicy"].Rows.Count; a++)
-                                {
-                                    wartosc = data.Tables["Pracownicy"].Rows[a]["Login"].ToString();
-                                    aktywny = data.Tables["Pracownicy"].Rows[a]["Aktywny"].ToString();
-
-                                    if (wartosc == splited[0])
-                                    {
-                                        string haslo = data.Tables["Pracownicy"].Rows[a]["Hasło"].ToString();
-                                        if (haslo == splited[1])
-                                        {
-                                            bool free = true;
-                                            mut2.WaitOne();
-                                            foreach (string log in l_Zalogowani)
-                                            {
-                                                if (log == splited[0])
-                                                {
-                                                    free = false;
-                                                }
-                                            }
-                                            mut2.ReleaseMutex();
-                                            if (free)
-                                            {
-                                                string ID = data.Tables["Pracownicy"].Rows[a]["IDPracownika"].ToString();
-                                                l_Zalogowani.Add(splited[0]);
-                                                asen = new ASCIIEncoding();//opwoiedz do klienta
-                                                str = Szyfrowanie.Encrypt("C", encryptyingCode);
-                                                s.Send(asen.GetBytes(str));
-
-                                                str = Szyfrowanie.Encrypt(ID, encryptyingCode);
-                                                s.Send(asen.GetBytes(str));
-
-                                                string filename = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.txt");
-                                                s.SendFile(filename);
-                                            }
-                                            else
-                                            {
-                                                asen = new ASCIIEncoding();//opwoiedz do klienta
-                                                str = Szyfrowanie.Encrypt("W", encryptyingCode);
-                                                s.Send(asen.GetBytes(str));
-                                            }
-
-                                        }
-                                        else
-                                        {
-                                            asen = new ASCIIEncoding();//opwoiedz do klienta
-                                            str = Szyfrowanie.Encrypt("W", encryptyingCode);
-                                            s.Send(asen.GetBytes(str));
-                                        }
-                                    }
-                                    else if (a == (data.Tables["Pracownicy"].Rows.Count) - 1)
-                                    {
-                                        asen = new ASCIIEncoding();//opwoiedz do klienta
-                                        str = Szyfrowanie.Encrypt("W", encryptyingCode);
-                                        s.Send(asen.GetBytes(str));
                                     }
                                 }
                                 connection.Close();
