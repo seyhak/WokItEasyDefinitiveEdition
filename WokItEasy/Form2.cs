@@ -16,10 +16,12 @@ namespace WokItEasy
 
         static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source = " + System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.mdb");
         List<SkładnikMenu> listaSM = new List<SkładnikMenu>();
+        List<SkładnikMenu> listaPOM = new List<SkładnikMenu>();
         List<int> listaIlePozycjiNaStrone = new List<int>();
         List<Button> listaButtonowNaStronie = new List<Button>();
         int ktoraStronaOgolnie = 0;
-        
+        int idStartowe;
+
         public Form2()
         {
             InitializeComponent();
@@ -42,6 +44,85 @@ namespace WokItEasy
 
             }
         }
+        private void Podziel()
+        {
+            for (int i = 1; i < 12; i++)
+            {
+                int ile = 0;
+                string tekst="";
+                switch(i)
+                {
+                    case 1:
+                        {
+                            tekst = "Sos";
+                            break;
+                        }
+                    case 2:
+                        {
+                            tekst = "Posypka";
+                            break;
+                        }
+                    case 3:
+                        {
+                            tekst = "Podstawa";
+                            break;
+                        }
+                    case 4:
+                        {
+                            tekst = "Proteina";
+                            break;
+                        }
+                    case 5:
+                        {
+                            tekst = "Napoje";
+                            break;
+                        }
+                    case 6:
+                        {
+                            tekst = "Inne";
+                            break;
+                        }
+                    case 7:
+                        {
+                            tekst = "Zupa";
+                            break;
+                        }
+                    case 8:
+                        {
+                            tekst = "Piwo";
+                            break;
+                        }
+                    case 9:
+                        {
+                            tekst = "Wino";
+                            break;
+                        }
+                    case 11:
+                        {
+                            tekst = "Wódka";
+                            break;
+                        }
+                }
+                int ktoraStronaNaLiscie = 0;
+                foreach (SkładnikMenu sm in listaSM)
+                {
+                    
+                    if (sm.RodzajSM==tekst)
+                    {
+                        listaPOM.Add(sm);
+                        ile++;
+
+                        if (ile == 36)
+                        {
+                            listaIlePozycjiNaStrone.Add(ile);
+                            ile = 0;
+                            ktoraStronaNaLiscie++;
+                        }
+                    }
+                }
+                listaIlePozycjiNaStrone.Add(ile);
+            }
+        }
         private void StwórzButtony()//todo
         {
             try
@@ -50,8 +131,13 @@ namespace WokItEasy
                 int ilePokazac = ileButtonow;
                 int x, y;
                 x = y = 0;
-                int odKtoregoIDZaczac = ktoraStronaOgolnie*36;
-                for (int a = 0; a < ilePokazac; a++)
+                //int odKtoregoIDZaczac = ktoraStronaOgolnie * 36;
+                idStartowe = 0;
+                for (int i = 0; i < ktoraStronaOgolnie; i++)
+                {
+                    idStartowe += listaIlePozycjiNaStrone[i];
+                }
+                for (int a = idStartowe; a < idStartowe + ilePokazac; a++)
                 {
                     if (a % 6 == 0 && x != 0)
                     {
@@ -64,35 +150,59 @@ namespace WokItEasy
                     //dynamicButton.BackColor = Color.Red;
                     //dynamicButton.ForeColor = Color.Blue;
                     dynamicButton.Location = new Point(320 + x, 80 + y);
-                    dynamicButton.Text = listaSM[a].NazwaSM ;
+                    dynamicButton.Text = listaPOM[a].NazwaSM;
                     x += 125;
 
                     dynamicButton.Click += new EventHandler(DynamicButton_Click);
                     listaButtonowNaStronie.Add(dynamicButton);
                     Controls.Add(dynamicButton);
                 }
-
             }
+
             catch
             {
-                if(listaIlePozycjiNaStrone[ktoraStronaOgolnie]==0)
+                if (listaIlePozycjiNaStrone[ktoraStronaOgolnie] == 0)
                     MessageBox.Show("Brak pozycji do wyświetlenia");
-
             }
-            //dynamicButton.Name = "DynamicButton";
-            //dynamicButton.Font = new Font("Georgia", 16);
-
-            // Add a Button Click Event handler
-
-            //dynamicButton.Click += new EventHandler(DynamicButton_Click);
-
-            // Add Button to the Form. Placement of the Button
-
-            // will be based on the Location and Size of button
-
-            //Controls.Add(dynamicButton);
-
         }
+        //private void StwórzButtony()//todo
+        //{
+        //    try
+        //    {
+        //        int ileButtonow = listaIlePozycjiNaStrone[ktoraStronaOgolnie];//w rzędzie mieści się 6 w kolumnie 6
+        //        int ilePokazac = ileButtonow;
+        //        int x, y;
+        //        x = y = 0;
+        //        int odKtoregoIDZaczac = ktoraStronaOgolnie*36;
+        //        for (int a = 0; a < ilePokazac; a++)
+        //        {
+        //            if (a % 6 == 0 && x != 0)
+        //            {
+        //                y += 125;
+        //                x = 0;
+        //            }
+        //            Button dynamicButton = new Button();
+        //            dynamicButton.Height = 120;
+        //            dynamicButton.Width = 120;
+        //            //dynamicButton.BackColor = Color.Red;
+        //            //dynamicButton.ForeColor = Color.Blue;
+        //            dynamicButton.Location = new Point(320 + x, 80 + y);
+        //            dynamicButton.Text = listaSM[a].NazwaSM ;
+        //            x += 125;
+
+        //            dynamicButton.Click += new EventHandler(DynamicButton_Click);
+        //            listaButtonowNaStronie.Add(dynamicButton);
+        //            Controls.Add(dynamicButton);
+        //        }
+
+        //    }
+        //    catch
+        //    {
+        //        if(listaIlePozycjiNaStrone[ktoraStronaOgolnie]==0)
+        //            MessageBox.Show("Brak pozycji do wyświetlenia");
+
+        //    }
+        //}
         void UsunButtony()
         {
             foreach (Button btn in listaButtonowNaStronie)
@@ -136,7 +246,8 @@ namespace WokItEasy
         {
             ZbudujListePozycji();
             CzyZaDuzoPozycji();
-            StworzListeStron();
+            Podziel();
+            //StworzListeStron();
             StwórzButtony();
         }
 
