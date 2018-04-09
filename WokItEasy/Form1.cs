@@ -223,6 +223,7 @@ namespace WokItEasy
                                                            //str= Szyfrowanie.Encrypt("OK", encryptyingCode);
                                 str = "OK";
                                 s.Send(asen.GetBytes(LengthConverter.Convert(str.Length)));//długość słowa
+                                Thread.Sleep(300);//inaczej pomija
                                 s.Send(asen.GetBytes(str));
                                 Thread.Sleep(300);//inaczej pomija
                                 b = new byte[256];
