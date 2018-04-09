@@ -68,7 +68,8 @@
             this.button31.Name = "button31";
             this.button31.Size = new System.Drawing.Size(313, 165);
             this.button31.TabIndex = 33;
-            this.button31.Text = "Koniec";
+            this.button31.Tag = "";
+            this.button31.Text = "Zatwierdź";
             this.button31.UseVisualStyleBackColor = true;
             this.button31.Click += new System.EventHandler(this.button31_Click);
             // 
@@ -106,7 +107,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(1426, 100);
+            this.button2.Location = new System.Drawing.Point(1425, 100);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 888);
             this.button2.TabIndex = 37;

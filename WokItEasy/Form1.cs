@@ -562,7 +562,7 @@ namespace WokItEasy
             formHistoria.Show();
         }
 
-        private void button5_Click(object sender, EventArgs e)
+        private void button5_Click(object sender, EventArgs e)//wyjdź
         {
           
             end = false;
@@ -581,9 +581,8 @@ namespace WokItEasy
 
         }
 
-        private void button6_Click_1(object sender, EventArgs e)
+        private void button6_Click_1(object sender, EventArgs e)////zaloguj
         {
-            ////zaloguj
             // try
             {
                     OleDbConnection connection = new OleDbConnection(source);
@@ -610,10 +609,10 @@ namespace WokItEasy
                             XMLConvert();//Wywołanie konwersji
                             l_Zalogowani.Add(textBox1.Text);
 
-                            
+
 
                             //new Thread(Watek).Start(parametry);
-                            t_Listen= new Thread(Listener);
+                            t_Listen = new Thread(Listener);
                             t_Listen.Start();
                             //t_Perform = new Thread(Performer);
                             //t_Perform.Start(parametry);
@@ -639,6 +638,7 @@ namespace WokItEasy
                             button2.Visible = true;
                             button3.Visible = true;
                             button4.Visible = true;
+                            button9.Visible = true;
                             pictureBox1.Visible = false;
                             button7.Visible = true;
                             if (ObecnieZalogowanyUżytkownik.Kierownik)
@@ -668,7 +668,7 @@ namespace WokItEasy
             //pracownicyTableAdapter.Adapter.
         }
 
-        private void button7_Click(object sender, EventArgs e)
+        private void button7_Click(object sender, EventArgs e)//wyloguj
         {
             //wyloguj
             button7.Visible = false;
@@ -684,7 +684,8 @@ namespace WokItEasy
             button3.Visible = false;
             button4.Visible = false;
             button6.Visible = true;
-            button8.Visible = false ;
+            button8.Visible = false;
+            button9.Visible = false;
             pictureBox1.Visible = true;
             ObecnieZalogowanyUżytkownik = new Użytkownik();
             l_Zalogowani.Clear();
@@ -694,11 +695,22 @@ namespace WokItEasy
             MessageBox.Show("Wylogowano");
         }
 
-        private void button8_Click(object sender, EventArgs e)
+        private void button8_Click(object sender, EventArgs e)//okno admina
         {
             //dodawanie pracownika i uprawinień
             OknoAdmina oA = new OknoAdmina();
             oA.Show();
+        }
+
+        private void button9_Click(object sender, EventArgs e)//obecne zamówienia
+        {
+            ObecneZamówienia oz = new ObecneZamówienia();
+            oz.Show();
+            if (Screen.AllScreens.Length > 1)
+            {
+                oz.Location = Screen.AllScreens[1].WorkingArea.Location;
+            }
+            oz.WindowState = FormWindowState.Maximized;
         }
     }
 }

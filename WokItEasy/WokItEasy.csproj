@@ -92,6 +92,12 @@
       <DependentUpon>Menu.cs</DependentUpon>
     </Compile>
     <Compile Include="Network.cs" />
+    <Compile Include="ObecneZamówienia.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ObecneZamówienia.Designer.cs">
+      <DependentUpon>ObecneZamówienia.cs</DependentUpon>
+    </Compile>
     <Compile Include="OknoAdmina.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -129,6 +135,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Menu.resx">
       <DependentUpon>Menu.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ObecneZamówienia.resx">
+      <DependentUpon>ObecneZamówienia.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="OknoAdmina.resx">
       <DependentUpon>OknoAdmina.cs</DependentUpon>
