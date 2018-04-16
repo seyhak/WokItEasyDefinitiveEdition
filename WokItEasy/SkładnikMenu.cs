@@ -157,6 +157,7 @@ namespace WokItEasy
                 }
 
             }
+            returner.TrimEnd(',');
             return returner;
             
         }

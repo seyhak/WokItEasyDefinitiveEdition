@@ -20,6 +20,9 @@ namespace WokItEasy
         public ObecneZamówienia()
         {
             InitializeComponent();
+            this.Location = Screen.AllScreens[1].WorkingArea.Location;
+            //this.Location = new Point(0, 0);
+            this.Size = Screen.AllScreens[1].WorkingArea.Size;
             SkładnikMenu.Zbuduj();
             thr = new Thread(this.Pokazuj);
             thr.Start();
@@ -40,6 +43,14 @@ namespace WokItEasy
                     SetHour(DateTime.Now.ToString());
                     if (buttonsChanged)//wchodzi tylko jeżeli pojawiła się zmiana
                     {
+                        foreach(Control c in this.Controls)
+                        {
+                            if(c is Button)
+                            {
+                                this.Controls.Remove(c);
+                            }
+
+                        }
                         Działaj();
                         buttonsChanged = !buttonsChanged;
                     }
@@ -63,9 +74,10 @@ namespace WokItEasy
                     dynamicButton.Font = new Font("Microsoft Sans Serif", 12);
                     //dynamicButton.BackColor = Color.Red;
                     //dynamicButton.ForeColor = Color.Blue;
-                    dynamicButton.Location = new Point(400 + x, 400 + y);
-                    dynamicButton.Text = id.ToString() + Environment.NewLine + " " + when.ToString() +Environment.NewLine + what;
+                    dynamicButton.Location = new Point(x, y);
+                    dynamicButton.Text = id.ToString() + Environment.NewLine + " " + when.ToString() +Environment.NewLine + Environment.NewLine + Environment.NewLine + what.Trim(new Char[] { ','});
                     dynamicButton.Tag = id;
+                    dynamicButton.TextAlign = ContentAlignment.TopCenter;
                     dynamicButton.Click += new EventHandler(DynamicButton_Click);
                     Controls.Add(dynamicButton);
                 }
@@ -86,30 +98,29 @@ namespace WokItEasy
         }
         void Działaj()
         {
-            int a = 0;
-            int Max = 10;
+            int a = 0;//ile w rzędzie
+            int ileMaxWrzędzie;
+            int Max = 10;//maxymalna ilość btn na ekran?
             int x, y;
+            int maxX, maxY;
+            maxX = this.Size.Width;
+            maxY = this.Size.Height;
+            ileMaxWrzędzie = maxX / 205;
             x = y = 0;
-
+            y = 100;
+            //y = maxY;
             foreach (Zamówienie zamówienie in Zamówienie.GetObecneZamówienia())
             {
-                //if (Screen.AllScreens.Length > 1)
-                //{
-                //    oz.Location = Screen.AllScreens[1].WorkingArea.Location;
-                //}
-                //else
-                //{
-                //    Screen.PrimaryScreen.Bounds.Width;
-                //    Screen.PrimaryScreen.Bounds.Height;
-                //    Screen.PrimaryScreen.Bounds.Size;
-                //}
+              
                 StwórzButton(zamówienie.IdZamówienia, SkładnikMenu.GetNazwyZIdZPrzecinkami(zamówienie.IdZamówień), zamówienie.DataZamówienia, x, y);
-                if (a % 6 == 0 && x != 0)
+                if (a % ileMaxWrzędzie == 0 && x != 0)
                 {
-                    y += 125;
+                    y += 205;
                     x = 0;
                 }
-                x += 125;
+                else
+                    x += 205;
+                a++;
         }
         }
         void SetHour(string text)

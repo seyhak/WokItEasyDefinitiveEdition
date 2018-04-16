@@ -25,7 +25,7 @@ namespace WokItEasy
         static string encryptyingCode = "FISH!";
         Thread t_Listen;
         Thread t_Perform;
-        private bool end = true;
+        public static bool end = true;
         private static Mutex mut = new Mutex();
         private static Mutex mut2 = new Mutex();
         static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source = " + System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.mdb");
@@ -689,10 +689,10 @@ namespace WokItEasy
             pictureBox1.Visible = true;
             ObecnieZalogowanyUżytkownik = new Użytkownik();
             l_Zalogowani.Clear();
-            end = true;
+            end = false;
            // t_Listen.Abort();
             //t_Perform.Abort();
-            MessageBox.Show("Wylogowano");
+           // MessageBox.Show("Wylogowano");
         }
 
         private void button8_Click(object sender, EventArgs e)//okno admina
@@ -708,6 +708,10 @@ namespace WokItEasy
             oz.Show();
             if (Screen.AllScreens.Length > 1)
             {
+                Screen[] screens = Screen.AllScreens;
+                Rectangle bounds = screens[1].Bounds;
+                oz.SetBounds(bounds.X, bounds.Y, bounds.Width, bounds.Height);
+                oz.StartPosition = FormStartPosition.Manual;
                 oz.Location = Screen.AllScreens[1].WorkingArea.Location;
             }
             oz.WindowState = FormWindowState.Maximized;

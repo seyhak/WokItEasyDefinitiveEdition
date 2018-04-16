@@ -51,6 +51,7 @@
             this.Controls.Add(this.label2);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "ObecneZamówienia";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "ObecneZamówienia";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ObecneZamówienia_MouseClick);
