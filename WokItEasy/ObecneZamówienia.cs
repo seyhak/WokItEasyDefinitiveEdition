@@ -16,6 +16,7 @@ namespace WokItEasy
     {
         bool workWorkMoneyMade = true;
         Thread thr;
+        List<Button> listaBtnów = new List<Button>();
         bool buttonsChanged = true;
         public ObecneZamówienia()
         {
@@ -43,19 +44,38 @@ namespace WokItEasy
                     SetHour(DateTime.Now.ToString());
                     if (buttonsChanged)//wchodzi tylko jeżeli pojawiła się zmiana
                     {
-                        foreach(Control c in this.Controls)
-                        {
-                            if(c is Button)
-                            {
-                                this.Controls.Remove(c);
-                            }
-
-                        }
-                        Działaj();
                         buttonsChanged = !buttonsChanged;
+                        Remove(listaBtnów);
+                        listaBtnów = new List<Button>();
+                        Thread.Sleep(100);
+                        Działaj();
                     }
                 }
             }
+        }
+        void Remove(List<Button> c)
+        {
+            if (InvokeRequired)
+            {
+                this.Invoke(new Action<List<Button>>(Remove), new object[] { c });
+                return;
+            }
+            else
+            {
+                try
+                {
+                    foreach (Button b in c)
+                    {
+                        //listaBtnów.Remove(b);
+                        this.Controls.Remove(b);
+                    }
+                }
+                catch
+                {
+                    System.Diagnostics.Debug.WriteLine(c + " removed");
+                }
+            }
+
         }
         private void StwórzButton(int id, string what, DateTime when,int x,int y)
         {
@@ -68,6 +88,7 @@ namespace WokItEasy
             {
                 try
                 {
+                    string[] whatSpaces = what.Split(',');
                     Button dynamicButton = new Button();
                     dynamicButton.Height = 200;
                     dynamicButton.Width = 200;
@@ -75,11 +96,16 @@ namespace WokItEasy
                     //dynamicButton.BackColor = Color.Red;
                     //dynamicButton.ForeColor = Color.Blue;
                     dynamicButton.Location = new Point(x, y);
-                    dynamicButton.Text = id.ToString() + Environment.NewLine + " " + when.ToString() +Environment.NewLine + Environment.NewLine + Environment.NewLine + what.Trim(new Char[] { ','});
+                    dynamicButton.Text = id.ToString() + Environment.NewLine + " " + when.ToString() + Environment.NewLine + Environment.NewLine;
+                    foreach (string s in whatSpaces)
+                    {
+                        dynamicButton.Text += s + Environment.NewLine;/* what.Trim(new Char[] { ','});*/
+                    }
                     dynamicButton.Tag = id;
                     dynamicButton.TextAlign = ContentAlignment.TopCenter;
                     dynamicButton.Click += new EventHandler(DynamicButton_Click);
-                    Controls.Add(dynamicButton);
+                    this.Controls.Add(dynamicButton);
+                    listaBtnów.Add(dynamicButton);
                 }
                 catch
                 {
@@ -92,7 +118,6 @@ namespace WokItEasy
         {
             Button clickedButton = sender as Button;
             Zamówienie.WykonajZamówienie(Convert.ToInt32(clickedButton.Tag));
-            this.Controls.Remove(clickedButton);
             buttonsChanged = true;
 
         }
@@ -100,18 +125,21 @@ namespace WokItEasy
         {
             int a = 0;//ile w rzędzie
             int ileMaxWrzędzie;
+            int ileMaxWkolumnie;
             int Max = 10;//maxymalna ilość btn na ekran?
             int x, y;
             int maxX, maxY;
             maxX = this.Size.Width;
             maxY = this.Size.Height;
             ileMaxWrzędzie = maxX / 205;
+            ileMaxWkolumnie = maxY / 205;
             x = y = 0;
             y = 100;
             //y = maxY;
             foreach (Zamówienie zamówienie in Zamówienie.GetObecneZamówienia())
             {
-              
+                if (a > (ileMaxWkolumnie * ileMaxWrzędzie))
+                    break;
                 StwórzButton(zamówienie.IdZamówienia, SkładnikMenu.GetNazwyZIdZPrzecinkami(zamówienie.IdZamówień), zamówienie.DataZamówienia, x, y);
                 if (a % ileMaxWrzędzie == 0 && x != 0)
                 {
