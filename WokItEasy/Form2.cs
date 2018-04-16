@@ -307,18 +307,7 @@ namespace WokItEasy
             }
             Zamówienie.DopiszZamowieniaZListyID(listaSM, listStr, Convert.ToDouble(label2.Text), source, Form1.ObecnieZalogowanyUżytkownik.Id, online, false);
             label2.Text = "0";
-            for (int a = 0; a < listBox1.Items.Count; a++)//tyle razy bo czasami zostawało?
-            {
-                listBox1.Items.Remove(listBox1.Items[a]);
-            }
-            for (int a = 0; a < listBox1.Items.Count; a++)
-            {
-                listBox1.Items.Remove(listBox1.Items[a]);
-            }
-            for (int a = 0; a < listBox1.Items.Count; a++)
-            {
-                listBox1.Items.Remove(listBox1.Items[a]);
-            }
+            listBox1.Items.Clear();
         }
 
         private void button32_Click(object sender, EventArgs e)

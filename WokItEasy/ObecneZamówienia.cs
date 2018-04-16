@@ -15,15 +15,18 @@ namespace WokItEasy
     public partial class ObecneZamówienia : Form
     {
         bool workWorkMoneyMade = true;
+        int screenCount=0;
         Thread thr;
         List<Button> listaBtnów = new List<Button>();
         bool buttonsChanged = true;
         public ObecneZamówienia()
         {
             InitializeComponent();
-            this.Location = Screen.AllScreens[1].WorkingArea.Location;
+            if (Screen.AllScreens.Length > 1)
+                screenCount = 1;
+            this.Location = Screen.AllScreens[screenCount].WorkingArea.Location;
             //this.Location = new Point(0, 0);
-            this.Size = Screen.AllScreens[1].WorkingArea.Size;
+            this.Size = Screen.AllScreens[screenCount].WorkingArea.Size;
             SkładnikMenu.Zbuduj();
             thr = new Thread(this.Pokazuj);
             thr.Start();
@@ -72,7 +75,7 @@ namespace WokItEasy
                 }
                 catch
                 {
-                    System.Diagnostics.Debug.WriteLine(c + " removed");
+                    //System.Diagnostics.Debug.WriteLine(c + " removed");
                 }
             }
 
@@ -90,8 +93,9 @@ namespace WokItEasy
                 {
                     string[] whatSpaces = what.Split(',');
                     Button dynamicButton = new Button();
-                    dynamicButton.Height = 200;
+                    
                     dynamicButton.Width = 200;
+                    dynamicButton.Height = this.Size.Width-105;
                     dynamicButton.Font = new Font("Microsoft Sans Serif", 12);
                     //dynamicButton.BackColor = Color.Red;
                     //dynamicButton.ForeColor = Color.Blue;
@@ -109,7 +113,7 @@ namespace WokItEasy
                 }
                 catch
                 {
-                    MessageBox.Show("Brak pozycji do wyświetlenia");
+                    //MessageBox.Show("Brak pozycji do wyświetlenia");
                 }
             }
           
@@ -126,30 +130,50 @@ namespace WokItEasy
             int a = 0;//ile w rzędzie
             int ileMaxWrzędzie;
             int ileMaxWkolumnie;
-            int Max = 10;//maxymalna ilość btn na ekran?
             int x, y;
             int maxX, maxY;
             maxX = this.Size.Width;
             maxY = this.Size.Height;
             ileMaxWrzędzie = maxX / 205;
             ileMaxWkolumnie = maxY / 205;
+            ileMaxWkolumnie = 1;
+            int Max = ileMaxWkolumnie * ileMaxWrzędzie;//maxymalna ilość btn na ekran?
             x = y = 0;
-            y = 100;
+            y = 50;
             //y = maxY;
             foreach (Zamówienie zamówienie in Zamówienie.GetObecneZamówienia())
             {
-                if (a > (ileMaxWkolumnie * ileMaxWrzędzie))
+                if (a >= Max)
                     break;
+                
                 StwórzButton(zamówienie.IdZamówienia, SkładnikMenu.GetNazwyZIdZPrzecinkami(zamówienie.IdZamówień), zamówienie.DataZamówienia, x, y);
-                if (a % ileMaxWrzędzie == 0 && x != 0)
+                a++;
+                if (a % ileMaxWrzędzie == 0 && x != 0)//jeżeli w rzędzie jest już wystarczająco
                 {
                     y += 205;
                     x = 0;
                 }
                 else
                     x += 205;
-                a++;
+            }
+            SetCount(Max);
         }
+        void SetCount(int M)
+        {
+            if (InvokeRequired)
+            {
+                this.Invoke(new Action<int>(SetCount), new object[] { M });
+                return;
+            }
+            else
+            {
+                if ((Zamówienie.GetObecneZamówienia().Count - M) > 0) {
+                    label1.Text = "+" + (Zamówienie.GetObecneZamówienia().Count - M);
+                }
+                else
+                    label1.Text = "+" +0;
+            }
+
         }
         void SetHour(string text)
         {
