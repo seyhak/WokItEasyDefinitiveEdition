@@ -90,6 +90,7 @@
     <Compile Include="Historia.Designer.cs">
       <DependentUpon>Historia.cs</DependentUpon>
     </Compile>
+    <Compile Include="Kategoria.cs" />
     <Compile Include="LengthConverter.cs" />
     <Compile Include="Menu.cs">
       <SubType>Form</SubType>

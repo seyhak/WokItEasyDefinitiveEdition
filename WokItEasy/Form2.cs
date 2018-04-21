@@ -17,6 +17,7 @@ namespace WokItEasy
         static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source = " + System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.mdb");
         List<SkładnikMenu> listaSM = new List<SkładnikMenu>();
         List<SkładnikMenu> listaPOM = new List<SkładnikMenu>();
+        List<Kategoria> listaKat = new List<Kategoria>();
         List<int> listaIlePozycjiNaStrone = new List<int>();
         List<Button> listaButtonowNaStronie = new List<Button>();
         int ktoraStronaOgolnie = 0;
@@ -46,82 +47,38 @@ namespace WokItEasy
         }
         private void Podziel()
         {
-            for (int i = 1; i < 12; i++)
+            try
             {
-                int ile = 0;
-                string tekst="";
-                switch(i)
+                listaKat = Kategoria.Zbuduj(source);
+                foreach (Kategoria kat in listaKat)
                 {
-                    case 1:
-                        {
-                            tekst = "Sos";
-                            break;
-                        }
-                    case 2:
-                        {
-                            tekst = "Posypka";
-                            break;
-                        }
-                    case 3:
-                        {
-                            tekst = "Podstawa";
-                            break;
-                        }
-                    case 4:
-                        {
-                            tekst = "Proteina";
-                            break;
-                        }
-                    case 5:
-                        {
-                            tekst = "Napoje";
-                            break;
-                        }
-                    case 6:
-                        {
-                            tekst = "Inne";
-                            break;
-                        }
-                    case 7:
-                        {
-                            tekst = "Zupa";
-                            break;
-                        }
-                    case 8:
-                        {
-                            tekst = "Piwo";
-                            break;
-                        }
-                    case 9:
-                        {
-                            tekst = "Wino";
-                            break;
-                        }
-                    case 11:
-                        {
-                            tekst = "Wódka";
-                            break;
-                        }
-                }
-                int ktoraStronaNaLiscie = 0;
-                foreach (SkładnikMenu sm in listaSM)
-                {
-                    
-                    if (sm.RodzajSM==tekst)
+                    int ile = 0;
+                    string tekst = kat.NazwaKat;
+                    int ktoraStronaNaLiscie = 0;
+                    foreach (SkładnikMenu sm in listaSM)
                     {
-                        listaPOM.Add(sm);
-                        ile++;
 
-                        if (ile == 36)
+                        if (sm.RodzajSM == tekst)
                         {
-                            listaIlePozycjiNaStrone.Add(ile);
-                            ile = 0;
-                            ktoraStronaNaLiscie++;
+                            listaPOM.Add(sm);
+                            ile++;
+
+                            if (ile == 36)
+                            {
+                                listaIlePozycjiNaStrone.Add(ile);
+                                ile = 0;
+                                ktoraStronaNaLiscie++;
+                            }
                         }
                     }
+                    listaIlePozycjiNaStrone.Add(ile);
                 }
-                listaIlePozycjiNaStrone.Add(ile);
             }
+            catch
+            {
+                MessageBox.Show("Błąd odczytywania menu");
+            }
+          
         }
         private void StwórzButtony()//todo
         {

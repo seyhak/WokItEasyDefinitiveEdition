@@ -176,7 +176,8 @@ namespace WokItEasy
                                 order = tekst;
 
                                 //wczytywanie listy zamówień
-                                string[] split = order.Split('#');
+                                order = SkładnikMenu.GetNazwyZIdZPrzecinkami(order);
+                                string[] split = order.Split(',');
 
                                 int idObsługi = Convert.ToInt32(split[0]);
                                 System.Diagnostics.Debug.WriteLine("Zamówienie od: " + split[0]);
