@@ -139,7 +139,7 @@ namespace WokItEasy
         public static string GetNazwyZIdZPrzecinkami(string word)
         {
             string returner = "";
-            string[] a = word.Split('#');
+            string[] a = word.Split(',');
             List<int> listIds = new List<int>();
             foreach(string s in a)
             {
