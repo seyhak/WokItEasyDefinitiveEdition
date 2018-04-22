@@ -136,16 +136,46 @@ namespace WokItEasy
             str += dataDodaniaSM.ToString();
             return str;
         }
-        public static string GetNazwyZIdZPrzecinkami(string word)
+        public static string GetNazwyZIdZPrzecinkamiKlient(string word)
         {
             string returner = "";
             string[] a = word.Split('#');
             List<int> listIds = new List<int>();
-            foreach(string s in a)
+            returner = a[0] + "," + a[1] + ",";
+            //foreach(string s in a)
+            //{
+            //    listIds.Add(Convert.ToInt32(s));
+            //}
+            for (int i = 2; i < a.Length; i++)
+            {
+                listIds.Add(Convert.ToInt32(a[i]));
+            }
+            foreach (int i in listIds)
+            {
+                foreach (SkładnikMenu sm in listaSkładnikówMenu)
+                {
+                    if (sm.IdSM == i)
+                    {
+                        returner += sm.nazwaSM;
+                        returner += " ,";
+                    }
+                }
+
+            }
+            returner.TrimEnd(',');
+            return returner;
+
+        }
+        public static string GetNazwyZIdZPrzecinkami(string word)
+        {
+            string returner = "";
+            string[] a = word.Split(',');
+            List<int> listIds = new List<int>();
+            foreach (string s in a)
             {
                 listIds.Add(Convert.ToInt32(s));
             }
-            foreach(int i in listIds)
+            foreach (int i in listIds)
             {
                 foreach(SkładnikMenu sm in listaSkładnikówMenu)
                 {

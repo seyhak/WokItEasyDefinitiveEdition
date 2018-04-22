@@ -176,20 +176,21 @@ namespace WokItEasy
                                 order = tekst;
 
                                 //wczytywanie listy zamówień
-                                order = SkładnikMenu.GetNazwyZIdZPrzecinkami(order);
+                                order = SkładnikMenu.GetNazwyZIdZPrzecinkamiKlient(order);
+                                order.TrimEnd(',');
                                 string[] split = order.Split(',');
 
                                 int idObsługi = Convert.ToInt32(split[0]);
                                 System.Diagnostics.Debug.WriteLine("Zamówienie od: " + split[0]);
                                 double kwota = 0;
                                 kwota = Double.Parse(split[1], CultureInfo.InvariantCulture);
-                                List<int> listIDOrders = new List<int>();
+                                List<string> listIDOrders = new List<string>();
                                 for (int v = 2; v < split.Length; v++)
                                 {
-                                    listIDOrders.Add(Convert.ToInt32(split[v]));
+                                    listIDOrders.Add(split[v]);
                                 }
                                 System.Diagnostics.Debug.WriteLine("Zamówienie: " + listIDOrders.ToString() + " " + kwota + " " + idObsługi + " " + source);
-                                Zamówienie.DopiszZamowieniaZListyID(listIDOrders, kwota, idObsługi, source);
+                                Zamówienie.DopiszZamowieniaZListyNazw(listIDOrders, kwota, idObsługi, source);
                                 System.Diagnostics.Debug.WriteLine("Dodano zamówienie");
                                 break;
                             }

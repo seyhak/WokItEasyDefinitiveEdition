@@ -110,7 +110,16 @@ namespace WokItEasy
             System.Diagnostics.Debug.WriteLine("Dodano");
 
         }
-        
+        public static void DopiszZamowieniaZListyNazw(List<string> ids, double cena, int idObslugi, string source, bool online = true, bool rozliczone = false)
+        {
+            string str = "";
+            for(int s=0;s<ids.Count;s++)
+            {
+                str += ids[s] + ", ";
+            }
+            str.TrimEnd(',');
+            DopiszZamowienie(cena, str, source, idObslugi, online, rozliczone);
+        }
         public static void DopiszZamowieniaZListyID(List<int> ids,double cena, int idObslugi, string source, bool online = true, bool rozliczone = false)
         {
             DopiszZamowienie(cena,idArr(ids),source,idObslugi,online,rozliczone);
