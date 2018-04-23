@@ -148,7 +148,7 @@ namespace WokItEasy
             string connectionString = source;
             OleDbConnection conn = new OleDbConnection(connectionString);
             conn.Open();
-            string query1 = "INSERT INTO Zamówienia (DataZamówienia, KwotaZamówienia, IDSM, IDObsługi, Online, Rozliczone, Wykonane) VALUES('";
+            string query1 = "INSERT INTO Zamówienia (DataZamówienia, KwotaZamówienia, IDSM, IDObsługi, Online, Rozliczone, Wykonane, WykonaneKuchnia) VALUES('";
             query1 += DateTime.Now.ToString();
             query1 += "', '";
             query1 += cena;
@@ -160,7 +160,7 @@ namespace WokItEasy
             query1 += online;
             query1 += ", ";
             query1 += rozliczone;
-            query1 += ", false);";
+            query1 += ", false, false);";
             System.Diagnostics.Debug.WriteLine(query1);
             OleDbCommand comm = new OleDbCommand(query1, conn);
             OleDbDataAdapter AdapterTab = new OleDbDataAdapter(comm);
