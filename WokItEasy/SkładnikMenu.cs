@@ -68,7 +68,7 @@ namespace WokItEasy
                 }
                 connection.Close();
                 listaSkładnikówMenu = listaSM;
-                listaSkładnikówMenuZrobiona = true;
+                ListaSkładnikówMenuZrobiona = true;
                 return listaSM;
             }
             catch
@@ -110,7 +110,7 @@ namespace WokItEasy
                 }
                 connection.Close();
                 listaSkładnikówMenu = listaSM;
-                listaSkładnikówMenuZrobiona = true;
+                ListaSkładnikówMenuZrobiona = true;
             }
             catch
             {
@@ -122,6 +122,8 @@ namespace WokItEasy
         public string NazwaSM { get => nazwaSM; set => nazwaSM = value; }
         public int IdSM { get => idSM; set => idSM = value; }
         public string RodzajSM { get => rodzajSM; set => rodzajSM = value; }
+        public static bool ListaSkładnikówMenuZrobiona { get => listaSkładnikówMenuZrobiona; set => listaSkładnikówMenuZrobiona = value; }
+
         public string getAlmostXML()
         {
             string str = "";
@@ -166,7 +168,8 @@ namespace WokItEasy
             return returner;
 
         }
-        public static string GetNazwyZIdZPrzecinkami(string word)
+        
+        public static string GetNazwyZIdZPrzecinkami(string word, bool kuchnia = false)
         {
             string returner = "";
             string[] a = word.Split(',');
@@ -175,19 +178,33 @@ namespace WokItEasy
             {
                 listIds.Add(Convert.ToInt32(s));
             }
+
             foreach (int i in listIds)
             {
                 foreach(SkładnikMenu sm in listaSkładnikówMenu)
                 {
                     if (sm.IdSM == i)
                     {
-                        returner += sm.nazwaSM;
-                        returner += " ,";
+
+                        if (kuchnia)//przefiltruj dania tylko do kuchni
+                        {
+                            if (Kategoria.CzyNależyDoKuchni(sm.RodzajSM))
+                            {
+                                returner += sm.nazwaSM;
+                                returner += " ,";
+                            }
+                        }
+                        else
+                        {
+                            returner += sm.nazwaSM;
+                            returner += " ,";
+                        }
                     }
                 }
 
             }
             returner.TrimEnd(',');
+            
             return returner;
             
         }

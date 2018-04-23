@@ -532,6 +532,8 @@ namespace WokItEasy
         public Form1()
         {
             InitializeComponent();
+            Kategoria.ZbudujStatycznąListęKategorii(source);
+            SkładnikMenu.Zbuduj();
             //ParametryWatku parametry = new ParametryWatku();
             //parametry.id = 1;
             //parametry.synchro = WindowsFormsSynchronizationContext.Current.CreateCopy();
@@ -641,6 +643,7 @@ namespace WokItEasy
                             button3.Visible = true;
                             button4.Visible = true;
                             button9.Visible = true;
+                            button10.Visible = true;
                             pictureBox1.Visible = false;
                             button7.Visible = true;
                             if (ObecnieZalogowanyUżytkownik.Kierownik)
@@ -688,6 +691,7 @@ namespace WokItEasy
             button6.Visible = true;
             button8.Visible = false;
             button9.Visible = false;
+            button10.Visible = false;
             pictureBox1.Visible = true;
             ObecnieZalogowanyUżytkownik = new Użytkownik();
             l_Zalogowani.Clear();
@@ -707,6 +711,21 @@ namespace WokItEasy
         private void button9_Click(object sender, EventArgs e)//obecne zamówienia
         {
             ObecneZamówienia oz = new ObecneZamówienia();
+            oz.Show();
+            if (Screen.AllScreens.Length > 1)
+            {
+                Screen[] screens = Screen.AllScreens;
+                Rectangle bounds = screens[1].Bounds;
+                oz.SetBounds(bounds.X, bounds.Y, bounds.Width, bounds.Height);
+                oz.StartPosition = FormStartPosition.Manual;
+                oz.Location = Screen.AllScreens[1].WorkingArea.Location;
+            }
+            oz.WindowState = FormWindowState.Maximized;
+        }
+
+        private void button10_Click(object sender, EventArgs e)
+        {
+            ObecneZamówienia oz = new ObecneZamówienia(true);
             oz.Show();
             if (Screen.AllScreens.Length > 1)
             {

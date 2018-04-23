@@ -14,6 +14,8 @@ namespace WokItEasy
 {
     public partial class ObecneZamówienia : Form
     {
+        string godzina;
+        bool kuchnia = false;
         bool workWorkMoneyMade = true;
         int screenCount=0;
         Thread thr;
@@ -31,8 +33,23 @@ namespace WokItEasy
             thr = new Thread(this.Pokazuj);
             thr.Start();
         }
+        public ObecneZamówienia(bool kuchnia)
+        {
+            InitializeComponent();
+
+            this.kuchnia = kuchnia;
+            if (Screen.AllScreens.Length > 1)
+                screenCount = 1;
+            this.Location = Screen.AllScreens[screenCount].WorkingArea.Location;
+            //this.Location = new Point(0, 0);
+            this.Size = Screen.AllScreens[screenCount].WorkingArea.Size;
+            SkładnikMenu.Zbuduj();
+            thr = new Thread(this.Pokazuj);
+            thr.Start();
+        }
         private void ObecneZamówienia_MouseClick(object sender, MouseEventArgs e)
         {
+            workWorkMoneyMade = false;
             thr.Abort();
             this.Close();
         }
@@ -56,6 +73,7 @@ namespace WokItEasy
                 }
             }
         }
+        
         void Remove(List<Button> c)
         {
             if (InvokeRequired)
@@ -89,39 +107,40 @@ namespace WokItEasy
             }
             else
             {
-                try
-                {
-                    string[] whatSpaces = what.Split(',');
-                    Button dynamicButton = new Button();
-                    
-                    dynamicButton.Width = 200;
-                    dynamicButton.Height = this.Size.Width-105;
-                    dynamicButton.Font = new Font("Microsoft Sans Serif", 12);
-                    //dynamicButton.BackColor = Color.Red;
-                    //dynamicButton.ForeColor = Color.Blue;
-                    dynamicButton.Location = new Point(x, y);
-                    dynamicButton.Text = id.ToString() + Environment.NewLine + " " + when.ToString() + Environment.NewLine + Environment.NewLine;
-                    foreach (string s in whatSpaces)
+               
+                    try
                     {
-                        dynamicButton.Text += s + Environment.NewLine;/* what.Trim(new Char[] { ','});*/
+                        string[] whatSpaces = what.Split(',');
+                        Button dynamicButton = new Button();
+
+                        dynamicButton.Width = 200;
+                        dynamicButton.Height = this.Size.Width - 105;
+                        dynamicButton.Font = new Font("Microsoft Sans Serif", 12);
+                        //dynamicButton.BackColor = Color.Red;
+                        //dynamicButton.ForeColor = Color.Blue;
+                        dynamicButton.Location = new Point(x, y);
+                        dynamicButton.Text = id.ToString() + Environment.NewLine + " " + when.ToString() + Environment.NewLine + Environment.NewLine;
+                        foreach (string s in whatSpaces)
+                        {
+                            dynamicButton.Text += s + Environment.NewLine;/* what.Trim(new Char[] { ','});*/
+                        }
+                        dynamicButton.Tag = id;
+                        dynamicButton.TextAlign = ContentAlignment.TopCenter;
+                        dynamicButton.Click += new EventHandler(DynamicButton_Click);
+                        this.Controls.Add(dynamicButton);
+                        listaBtnów.Add(dynamicButton);
                     }
-                    dynamicButton.Tag = id;
-                    dynamicButton.TextAlign = ContentAlignment.TopCenter;
-                    dynamicButton.Click += new EventHandler(DynamicButton_Click);
-                    this.Controls.Add(dynamicButton);
-                    listaBtnów.Add(dynamicButton);
-                }
-                catch
-                {
-                    //MessageBox.Show("Brak pozycji do wyświetlenia");
-                }
+                    catch
+                    {
+                        //MessageBox.Show("Brak pozycji do wyświetlenia");
+                    }
             }
           
         }
         private void DynamicButton_Click(object sender, EventArgs e)
         {
             Button clickedButton = sender as Button;
-            Zamówienie.WykonajZamówienie(Convert.ToInt32(clickedButton.Tag));
+            Zamówienie.WykonajZamówienie(Convert.ToInt32(clickedButton.Tag),kuchnia);
             buttonsChanged = true;
 
         }
@@ -141,20 +160,26 @@ namespace WokItEasy
             x = y = 0;
             y = 50;
             //y = maxY;
-            foreach (Zamówienie zamówienie in Zamówienie.GetObecneZamówienia())
+            foreach (Zamówienie zamówienie in Zamówienie.GetObecneZamówienia(kuchnia))
             {
                 if (a >= Max)
                     break;
-                
-                StwórzButton(zamówienie.IdZamówienia, SkładnikMenu.GetNazwyZIdZPrzecinkami(zamówienie.IdZamówień), zamówienie.DataZamówienia, x, y);
-                a++;
-                if (a % ileMaxWrzędzie == 0 && x != 0)//jeżeli w rzędzie jest już wystarczająco
+                string what = "";
+                what = SkładnikMenu.GetNazwyZIdZPrzecinkami(zamówienie.IdZamówień, kuchnia);
+                if (((what != "")&&kuchnia)||!kuchnia)
                 {
-                    y += 205;
-                    x = 0;
+                    
+
+                    StwórzButton(zamówienie.IdZamówienia, what, zamówienie.DataZamówienia, x, y);
+                    a++;
+                    if (a % ileMaxWrzędzie == 0 && x != 0)//jeżeli w rzędzie jest już wystarczająco
+                    {
+                        y += 205;
+                        x = 0;
+                    }
+                    else
+                        x += 205;
                 }
-                else
-                    x += 205;
             }
             SetCount(Max);
         }
@@ -167,8 +192,8 @@ namespace WokItEasy
             }
             else
             {
-                if ((Zamówienie.GetObecneZamówienia().Count - M) > 0) {
-                    label1.Text = "+" + (Zamówienie.GetObecneZamówienia().Count - M);
+                if ((Zamówienie.GetObecneZamówienia(kuchnia).Count - M) > 0) {
+                    label1.Text = "+" + (Zamówienie.GetObecneZamówienia(kuchnia).Count - M);
                 }
                 else
                     label1.Text = "+" +0;
@@ -184,7 +209,11 @@ namespace WokItEasy
             }
             else
             {
-                label2.Text = DateTime.Now.ToString();
+                try
+                {
+                    label2.Text = DateTime.Now.ToString();
+                }
+                catch { }
             }
         }
         private void label1_Click(object sender, EventArgs e)

@@ -28,6 +28,7 @@ namespace WokItEasy
         public bool Rozliczone { get => rozliczone; set => rozliczone = value; }
 
         private static List<Zamówienie> listObecneZamówienia = new List<Zamówienie>();
+        private static List<Zamówienie> listObecneZamówieniaNaKuchni = new List<Zamówienie>();
         private static void BuildObecneZamówienia()
         {
             try
@@ -63,25 +64,84 @@ namespace WokItEasy
 
 
         }
-        public static List<Zamówienie> GetObecneZamówienia()
+        public static List<Zamówienie> GetObecneZamówienia(bool kuchnia)
         {
-            BuildObecneZamówienia();
+            if (kuchnia)
+            {
+                BuildObecneZamówieniaNaKuchni();
+                return listObecneZamówieniaNaKuchni;
+            }
+            else
+                BuildObecneZamówienia();
 
             return listObecneZamówienia;
         }
-        public static void WykonajZamówienie(int id)
+        private static void BuildObecneZamówieniaNaKuchni()
         {
-            string connectionString = source;
-            OleDbConnection conn = new OleDbConnection(connectionString);
-            conn.Open();
-            string query = "UPDATE Zamówienia SET Wykonane = true WHERE Identyfikator = "+id.ToString()+";";
-            System.Diagnostics.Debug.WriteLine(query);
-            OleDbCommand comm = new OleDbCommand(query, conn);
-            OleDbDataAdapter AdapterTab = new OleDbDataAdapter(comm);
-            DataSet data1 = new DataSet();
-            AdapterTab.Fill(data1, "Zamówienia");
-            conn.Close();
-            System.Diagnostics.Debug.WriteLine("Zrealizowano zamówienie o id "+id);
+            try
+            {
+                listObecneZamówieniaNaKuchni = new List<Zamówienie>();
+                string connString = source;
+                OleDbConnection connection = new OleDbConnection(connString);
+                connection.Open();
+                string query = "SELECT * FROM Zamówienia WHERE WykonaneKuchnia = false;";
+                OleDbCommand command = new OleDbCommand(query, connection);
+                OleDbDataAdapter AdapterTabela = new OleDbDataAdapter(command);
+                DataSet data = new DataSet();
+                AdapterTabela.Fill(data, "Zamówienia");
+                string wartosc;
+                for (int a = 0; a < data.Tables["Zamówienia"].Rows.Count; a++)
+                {
+                    wartosc = data.Tables["Zamówienia"].Rows[a][0].ToString();
+                    Zamówienie zamówienie = new Zamówienie();
+                    zamówienie.IdZamówienia = Convert.ToInt32(wartosc);
+                    wartosc = data.Tables["Zamówienia"].Rows[a][1].ToString();
+                    zamówienie.DataZamówienia = DateTime.Parse(wartosc);
+                    wartosc = data.Tables["Zamówienia"].Rows[a][3].ToString();
+                    zamówienie.IdZamówień = wartosc;
+                    listObecneZamówieniaNaKuchni.Add(zamówienie);
+                }
+                connection.Close();
+                // return ObecneZamówienia;
+            }
+            catch
+            {
+                // null;
+            }
+
+
+        }
+        public static void WykonajZamówienie(int id,bool kuchnia)
+        {
+            if (!kuchnia)
+            {
+                string connectionString = source;
+                OleDbConnection conn = new OleDbConnection(connectionString);
+                conn.Open();
+                string query = "UPDATE Zamówienia SET Wykonane = true WHERE Identyfikator = " + id.ToString() + ";";
+                System.Diagnostics.Debug.WriteLine(query);
+                OleDbCommand comm = new OleDbCommand(query, conn);
+                OleDbDataAdapter AdapterTab = new OleDbDataAdapter(comm);
+                DataSet data1 = new DataSet();
+                AdapterTab.Fill(data1, "Zamówienia");
+                conn.Close();
+                System.Diagnostics.Debug.WriteLine("Zrealizowano zamówienie o id " + id);
+            }
+            else
+            {
+                string connectionString = source;
+                OleDbConnection conn = new OleDbConnection(connectionString);
+                conn.Open();
+                string query = "UPDATE Zamówienia SET WykonaneKuchnia = true WHERE Identyfikator = " + id.ToString() + ";";
+                System.Diagnostics.Debug.WriteLine(query);
+                OleDbCommand comm = new OleDbCommand(query, conn);
+                OleDbDataAdapter AdapterTab = new OleDbDataAdapter(comm);
+                DataSet data1 = new DataSet();
+                AdapterTab.Fill(data1, "Zamówienia");
+                conn.Close();
+                System.Diagnostics.Debug.WriteLine("Zrealizowano na kuchni zamówienie o id " + id);
+
+            }
         }
         public static void DopiszZamowienie(double cena, string ids,string source,int idObslugi,bool online=true,bool rozliczone=false)
         {
