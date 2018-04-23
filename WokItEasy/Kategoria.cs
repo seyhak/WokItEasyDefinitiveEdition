@@ -12,8 +12,11 @@ namespace WokItEasy
     {
         int IDKategori;
         string nazwaKat;
+        bool doKuchni;
         public int IDKat { get => IDKategori; set => IDKategori = value; }
         public string NazwaKat { get => nazwaKat; set => nazwaKat = value; }
+        public bool DoKuchni { get => doKuchni; set => doKuchni = value; }
+
         public static List<Kategoria> Zbuduj(string sourc)
         {
             try
@@ -35,6 +38,8 @@ namespace WokItEasy
                     kategoria.IDKat = Int16.Parse(wartosc);
                     wartosc = data.Tables["Kategoria"].Rows[a][1].ToString();
                     kategoria.NazwaKat = wartosc;
+                    wartosc = data.Tables["Kategoria"].Rows[a][3].ToString();
+                    kategoria.doKuchni = Convert.ToBoolean(wartosc);
                     listaSM.Add(kategoria);
                 }
                 connection.Close();

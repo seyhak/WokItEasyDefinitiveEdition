@@ -1,4 +1,3 @@
-56 
 1 Teryaki 1 12
 2 Mee 3 4
 3 Kurczak 4 4

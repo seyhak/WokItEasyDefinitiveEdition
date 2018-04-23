@@ -261,7 +261,7 @@ namespace WokItEasy
                 DataSet data = new DataSet();
                 AdapterTabela.Fill(data, "Kategoria");
 
-                query = "UPDATE Kategoria SET NazwaKategorii ='" + textBox1.Text+ "' WHERE NazwaKategorii = '" + whatWhat + "';";
+                query = "UPDATE Kategoria SET NazwaKategorii ='" + textBox1.Text + "', Kuchnia = " + checkBox1.Checked.ToString() + " WHERE NazwaKategorii = '" + whatWhat + "';";
                 command = new OleDbCommand(query, connection);
                 AdapterTabela = new OleDbDataAdapter(command);
                 data = new DataSet();
@@ -281,12 +281,14 @@ namespace WokItEasy
         {
             try
             {
+                
                 string connString = source;
                 OleDbConnection connection = new OleDbConnection(connString);
                 connection.Open();
-                string query = "INSERT INTO Kategoria (NazwaKategorii,Opis) VALUES('";
+                string query = "INSERT INTO Kategoria (NazwaKategorii,Opis,Kuchnia) VALUES('";
                 query += textBox1.Text;
                 query += "', '";
+                query += "', "+checkBox1.Checked.ToString();
                 query += "')";
                 OleDbCommand command = new OleDbCommand(query, connection);
                 OleDbDataAdapter AdapterTabela = new OleDbDataAdapter(command);
@@ -316,6 +318,7 @@ namespace WokItEasy
             {
                 button3.Text = "Wył. tryb katergorii";
                 label2.Visible = false;
+                checkBox1.Visible = true;
                 textBox1.Text = "";
                 if (katEdytowana != "")
                 {
@@ -331,6 +334,7 @@ namespace WokItEasy
                 label2.Visible = true;
                 label3.Visible = true;
                 textBox2.Visible =true;
+                checkBox1.Visible = false;
                 button4.Visible = false;
             }
         }
@@ -362,6 +366,11 @@ namespace WokItEasy
                 this.Close();
             }
             catch { }
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
