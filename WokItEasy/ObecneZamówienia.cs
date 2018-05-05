@@ -191,5 +191,10 @@ namespace WokItEasy
         {
 
         }
+
+        private void ObecneZamówienia_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

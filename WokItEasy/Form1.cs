@@ -53,7 +53,7 @@ namespace WokItEasy
                     // hence this hacky check.
                     if (!tableName.StartsWith("~", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        if (tableName == "SkładnikMenu")
+                        if (tableName == "Zamówienia")
                         {
                             FillTable(dataSet, connnection, tableName);//Wyciągam teraz tylko składniki
                         }
@@ -135,6 +135,32 @@ namespace WokItEasy
                     switch (tekst)
                     {
                         //test
+                        case "SZ":
+                            {
+                                UTF8Encoding coderUTF = new UTF8Encoding();
+                                List<Zamówienie> listaZM = Zamówienie.ZbudujZamówienia();
+                                foreach (Zamówienie z in listaZM)
+                                {
+                                    string wyjscie = Zamówienie.ZbudujString(z);
+                                    System.Diagnostics.Debug.WriteLine(wyjscie);
+                                    s.Send(coderUTF.GetBytes(LengthConverter.Convert(coderUTF.GetByteCount(wyjscie))));//długość,
+                                    //Thread.Sleep(1000);
+                                    s.Send(coderUTF.GetBytes(wyjscie));//pozycja
+                                    //Thread.Sleep(1000);
+                                }
+                                break;
+                            }
+                        case "FZ": //wykonanie zamówienia przez klienta
+                            {
+                                asen = new ASCIIEncoding();//odpowiedz do klienta
+                                s.Send(asen.GetBytes("OK"));
+                                b = new byte[256];
+                                k = s.Receive(b);//odczytanie ilosc w zamowieniu od klienta
+                                tekst = "";
+                                for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
+                                Zamówienie.WykonajZamówienie(Convert.ToInt32(tekst));
+                                break;
+                            }
                         case "W":
                             {
                                 asen = new ASCIIEncoding();//odpowiedz do klienta
