@@ -29,6 +29,7 @@ namespace WokItEasy
         private static Mutex mut = new Mutex();
         private static Mutex mut2 = new Mutex();
         static string source = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source = " + System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\WokItEasy1.mdb");
+
       
         private static Użytkownik obecnieZalogowanyUżytkownik = new Użytkownik();
 
@@ -135,10 +136,14 @@ namespace WokItEasy
                     switch (tekst)
                     {
                         //test
-                        case "SZ":
+                        case "SZ"://pobierz listę zamówień
                             {
+                                asen = new ASCIIEncoding();//odpowiedz do klienta
+                                //s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
+                                s.Send(asen.GetBytes("OK"));
                                 UTF8Encoding coderUTF = new UTF8Encoding();
                                 List<Zamówienie> listaZM = Zamówienie.ZbudujZamówienia();
+                                s.Send(asen.GetBytes(Convert.ToString(listaZM.Count())));
                                 foreach (Zamówienie z in listaZM)
                                 {
                                     string wyjscie = Zamówienie.ZbudujString(z);
