@@ -674,6 +674,7 @@ namespace WokItEasy
                             button4.Visible = true;
                             button9.Visible = true;
                             button10.Visible = true;
+                            button11.Visible = true;
                             pictureBox1.Visible = false;
                             button7.Visible = true;
                             if (ObecnieZalogowanyUżytkownik.Kierownik)
@@ -722,6 +723,7 @@ namespace WokItEasy
             button8.Visible = false;
             button9.Visible = false;
             button10.Visible = false;
+            button11.Visible = false;
             pictureBox1.Visible = true;
             ObecnieZalogowanyUżytkownik = new Użytkownik();
             l_Zalogowani.Clear();
@@ -766,6 +768,12 @@ namespace WokItEasy
                 oz.Location = Screen.AllScreens[1].WorkingArea.Location;
             }
             oz.WindowState = FormWindowState.Maximized;
+        }
+
+        private void button11_Click(object sender, EventArgs e)
+        {
+            OdbiórZamówień oz = new OdbiórZamówień();
+
         }
     }
 }

@@ -105,6 +105,12 @@
     <Compile Include="ObecneZamówienia.Designer.cs">
       <DependentUpon>ObecneZamówienia.cs</DependentUpon>
     </Compile>
+    <Compile Include="OdbiórZamówień.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OdbiórZamówień.Designer.cs">
+      <DependentUpon>OdbiórZamówień.cs</DependentUpon>
+    </Compile>
     <Compile Include="OknoAdmina.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -145,6 +151,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ObecneZamówienia.resx">
       <DependentUpon>ObecneZamówienia.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OdbiórZamówień.resx">
+      <DependentUpon>OdbiórZamówień.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="OknoAdmina.resx">
       <DependentUpon>OknoAdmina.cs</DependentUpon>
