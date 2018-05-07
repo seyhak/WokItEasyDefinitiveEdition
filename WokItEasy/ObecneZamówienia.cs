@@ -202,19 +202,36 @@ namespace WokItEasy
         }
         void SetHour(string text)
         {
-            if (InvokeRequired)
-            {
-                this.Invoke(new Action<string>(SetHour), new object[] { text });
-                return;
-            }
-            else
-            {
+            //if (InvokeRequired)
+            //{
+            //    this.Invoke(new Action<string>(SetHour), new object[] { text });
+            //    return;
+            //}
+            //else
+            //{
+            //    try
+            //    {
+            //        label2.Text = DateTime.Now.ToString();
+            //    }
+            //    catch { }
+            //}
                 try
                 {
-                    label2.Text = DateTime.Now.ToString();
+                    if (InvokeRequired)
+                    {
+                        this.Invoke(new Action<string>(SetHour), new object[] { text });
+                        return;
+                    }
+                    else
+                    {
+                        label2.Text = DateTime.Now.ToString();
+                    }
                 }
-                catch { }
-            }
+                catch
+                    {
+
+                    }
+            
         }
         private void label1_Click(object sender, EventArgs e)
         {
