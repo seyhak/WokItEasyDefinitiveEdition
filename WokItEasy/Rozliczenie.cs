@@ -84,5 +84,10 @@ namespace WokItEasy
                 AdapterTabela.Fill(data, "Zamówienia");//ustawia co należy
             }
         }
+
+        private void Rozliczenie_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
