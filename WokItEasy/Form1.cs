@@ -773,7 +773,16 @@ namespace WokItEasy
         private void button11_Click(object sender, EventArgs e)
         {
             OdbiórZamówień oz = new OdbiórZamówień();
-
+            oz.Show();
+            if (Screen.AllScreens.Length > 1)
+            {
+                Screen[] screens = Screen.AllScreens;
+                Rectangle bounds = screens[1].Bounds;
+                oz.SetBounds(bounds.X, bounds.Y, bounds.Width, bounds.Height);
+                oz.StartPosition = FormStartPosition.Manual;
+                oz.Location = Screen.AllScreens[1].WorkingArea.Location;
+            }
+            oz.WindowState = FormWindowState.Maximized;
         }
     }
 }

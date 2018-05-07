@@ -13,7 +13,6 @@ namespace WokItEasy
 {
     public partial class OdbiórZamówień : Form
     {
-        string godzina;
         bool workWorkMoneyMade = true;
         int screenCount = 0;
         Thread thr;
@@ -29,13 +28,6 @@ namespace WokItEasy
             thr = new Thread(this.Pokazuj);
             thr.Start();
         }
-        
-        private void ObecneZamówienia_MouseClick(object sender, MouseEventArgs e)
-        {
-            workWorkMoneyMade = false;
-            thr.Abort();
-            this.Close();
-        }
         void Pokazuj()
         {
             int framer = 0;
@@ -45,18 +37,44 @@ namespace WokItEasy
                 if (framer % 200 == 0)
                 {
                     SetHour(DateTime.Now.ToString());
-                    if (buttonsChanged)//wchodzi tylko jeżeli pojawiła się zmiana
+                    if (framer%1000000==0)//wchodzi tylko jeżeli pojawiła się zmiana
                     {
-                        buttonsChanged = !buttonsChanged;
-                        Remove(listaBtnów);
-                        listaBtnów = new List<Button>();
-                        Thread.Sleep(100);
+                        //Clear();
                         Działaj();
+                        framer = 1;
+                        Thread.Sleep(100);
                     }
                 }
             }
         }
+        void Clear(short from, int a)
+        {
+            try
+            {
+                if (InvokeRequired)
+                {
+                    this.Invoke(new Action<short, int>(Clear), new object[] { from, a });
+                    return;
+                }
+                else
+                {
+                    switch (from)
+                    {
+                        case 1:
 
+                            listBox1.Items.Remove(a);
+                            break;
+                        case 2:
+                            listBox2.Items.Remove(a);
+                            break;
+                    }
+                }
+            }
+            catch
+            {
+
+            }
+        }
         void Remove(List<Button> c)
         {
             if (InvokeRequired)
@@ -81,85 +99,55 @@ namespace WokItEasy
             }
 
         }
-        private void StwórzButton(int id, string what, DateTime when, int x, int y)
-        {
-            if (InvokeRequired)
-            {
-                this.Invoke(new Action<int, string, DateTime, int, int>(StwórzButton), new object[] { id, what, when, x, y });
-                return;
-            }
-            else
-            {
-
-                try
-                {
-                    string[] whatSpaces = what.Split(',');
-                    Button dynamicButton = new Button();
-
-                    dynamicButton.Width = 200;
-                    dynamicButton.Height = this.Size.Width - 105;
-                    dynamicButton.Font = new Font("Microsoft Sans Serif", 12);
-                    //dynamicButton.BackColor = Color.Red;
-                    //dynamicButton.ForeColor = Color.Blue;
-                    dynamicButton.Location = new Point(x, y);
-                    dynamicButton.Text = id.ToString() + Environment.NewLine + " " + when.ToString() + Environment.NewLine + Environment.NewLine;
-                    foreach (string s in whatSpaces)
-                    {
-                        dynamicButton.Text += s + Environment.NewLine;/* what.Trim(new Char[] { ','});*/
-                    }
-                    dynamicButton.Tag = id;
-                    dynamicButton.TextAlign = ContentAlignment.TopCenter;
-                    dynamicButton.Click += new EventHandler(DynamicButton_Click);
-                    this.Controls.Add(dynamicButton);
-                    listaBtnów.Add(dynamicButton);
-                }
-                catch
-                {
-                    //MessageBox.Show("Brak pozycji do wyświetlenia");
-                }
-            }
-
-        }
         
         void Działaj()
         {
-            int a = 0;//ile w rzędzie
-            int ileMaxWrzędzie;
-            int ileMaxWkolumnie;
-            int x, y;
-            int maxX, maxY;
-            maxX = this.Size.Width;
-            maxY = this.Size.Height;
-            ileMaxWrzędzie = maxX / 205;
-            ileMaxWkolumnie = maxY / 205;
-            ileMaxWkolumnie = 1;
-            int Max = ileMaxWkolumnie * ileMaxWrzędzie;//maxymalna ilość btn na ekran?
-            x = y = 0;
-            y = 50;
-            //y = maxY;
-            foreach (Zamówienie zamówienie in Zamówienie.GetObecneZamówienia(kuchnia))
+            foreach (Zamówienie zamówienie in Zamówienie.GetObecneZamówieniaDoOdebrania())
             {
-                if (a >= Max)
-                    break;
-                string what = "";
-                what = SkładnikMenu.GetNazwyZIdZPrzecinkami(zamówienie.IdZamówień, kuchnia);
-                if (((what != "") && kuchnia) || !kuchnia)
+                if (!zamówienie.Odebrane && zamówienie.Wykonane)//do odbioru
                 {
-
-
-                    StwórzButton(zamówienie.IdZamówienia, what, zamówienie.DataZamówienia, x, y);
-                    a++;
-                    if (a % ileMaxWrzędzie == 0 && x != 0)//jeżeli w rzędzie jest już wystarczająco
+                    if (!listBox2.Items.Contains(zamówienie.IdZamówienia))
                     {
-                        y += 205;
-                        x = 0;
+                        Add(2, zamówienie.IdZamówienia);
+                        Clear(1, zamówienie.IdZamówienia);
                     }
-                    else
-                        x += 205;
+                }
+                if (!zamówienie.Odebrane && !zamówienie.Wykonane)//w trakcie
+                {
+                    if (!listBox1.Items.Contains(zamówienie.IdZamówienia))
+                        Add(1, zamówienie.IdZamówienia);
                 }
             }
         }
-        
+        void Add(short a,int what)
+        {
+            try
+            {
+                if (InvokeRequired)
+                {
+                    this.Invoke(new Action<short,int>(Add), new object[] { a,what });
+                    return;
+                }
+                else
+                {
+                    switch (a)
+                    {
+                        case 1:
+                            listBox1.Items.Add(what);
+                            break;
+                        case 2:
+                            listBox2.Items.Add(what);
+                            break;
+                    }
+                    label2.Text = DateTime.Now.ToString();
+                }
+            }
+            catch
+            {
+
+            }
+
+        }
         void SetHour(string text)
         {
             try
@@ -180,6 +168,28 @@ namespace WokItEasy
             }
 
         }
-    
+
+        private void listBox1_MouseClick(object sender, MouseEventArgs e)
+        {
+           
+        }
+
+        private void OdbiórZamówień_MouseClick(object sender, MouseEventArgs e)
+        {
+            workWorkMoneyMade = false;
+            thr.Abort();
+            this.Close();
+        }
+
+        private void listBox2_MouseClick(object sender, MouseEventArgs e)//usuń zamówienie (odebrane)
+        {
+            try
+            {
+                int a = Convert.ToInt32(listBox2.SelectedItem.ToString());
+                Clear(2, a);
+                Zamówienie.OdbrierzZamówienie(a);
+            }
+            catch { }
+        }
     }
 }

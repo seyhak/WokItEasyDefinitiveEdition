@@ -15,6 +15,8 @@ namespace WokItEasy
         DateTime dataZamówienia;
         bool online;
         bool rozliczone;
+        bool odebrane;
+        bool wykonane;
         string idZamówień;
         //static int maxIDZamówienia;
         //static bool maxIDZamówieniaZrobione = false;
@@ -26,9 +28,12 @@ namespace WokItEasy
         public bool Online { get => online; set => online = value; }
         public string IdZamówień { get => idZamówień; set => idZamówień = value; }
         public bool Rozliczone { get => rozliczone; set => rozliczone = value; }
+        public bool Odebrane { get => odebrane; set => odebrane = value; }
+        public bool Wykonane { get => wykonane; set => wykonane = value; }
 
         private static List<Zamówienie> listObecneZamówienia = new List<Zamówienie>();
         private static List<Zamówienie> listObecneZamówieniaNaKuchni = new List<Zamówienie>();
+        private static List<Zamówienie> listObecneZamówieniaDoOdebrania = new List<Zamówienie>();
         private static void BuildObecneZamówienia()
         {
             try
@@ -111,6 +116,52 @@ namespace WokItEasy
 
 
         }
+
+        public static List<Zamówienie> GetObecneZamówieniaDoOdebrania()
+        {
+
+            BuildObecneZamówieniaDoOdebrania();
+            return listObecneZamówieniaDoOdebrania;
+        }
+        private static void BuildObecneZamówieniaDoOdebrania()
+        {
+            try
+            {
+                listObecneZamówieniaDoOdebrania = new List<Zamówienie>();
+                string connString = source;
+                OleDbConnection connection = new OleDbConnection(connString);
+                connection.Open();
+                string query = "SELECT * FROM Zamówienia WHERE WykonaneKuchnia = false;";
+                OleDbCommand command = new OleDbCommand(query, connection);
+                OleDbDataAdapter AdapterTabela = new OleDbDataAdapter(command);
+                DataSet data = new DataSet();
+                AdapterTabela.Fill(data, "Zamówienia");
+                string wartosc;
+                for (int a = 0; a < data.Tables["Zamówienia"].Rows.Count; a++)
+                {
+                    wartosc = data.Tables["Zamówienia"].Rows[a][0].ToString();
+                    Zamówienie zamówienie = new Zamówienie();
+                    zamówienie.IdZamówienia = Convert.ToInt32(wartosc);
+                    wartosc = data.Tables["Zamówienia"].Rows[a][1].ToString();
+                    zamówienie.DataZamówienia = DateTime.Parse(wartosc);
+                    wartosc = data.Tables["Zamówienia"].Rows[a][3].ToString();
+                    zamówienie.IdZamówień = wartosc;
+                    wartosc = data.Tables["Zamówienia"].Rows[a][7].ToString();
+                    zamówienie.Wykonane = Convert.ToBoolean(wartosc);
+                    wartosc = data.Tables["Zamówienia"].Rows[a][9].ToString();
+                    zamówienie.Odebrane = Convert.ToBoolean(wartosc);
+                    listObecneZamówieniaDoOdebrania.Add(zamówienie);
+                }
+                connection.Close();
+                // return ObecneZamówienia;
+            }
+            catch
+            {
+                // null;
+            }
+
+
+        }
         public static void WykonajZamówienie(int id,bool kuchnia)
         {
             if (!kuchnia)
@@ -143,12 +194,27 @@ namespace WokItEasy
 
             }
         }
+        public static void OdbrierzZamówienie(int id)
+        {
+            string connectionString = source;
+            OleDbConnection conn = new OleDbConnection(connectionString);
+            conn.Open();
+            string query = "UPDATE Zamówienia SET Odebrane = true WHERE Identyfikator = " + id.ToString() + ";";
+            System.Diagnostics.Debug.WriteLine(query);
+            OleDbCommand comm = new OleDbCommand(query, conn);
+            OleDbDataAdapter AdapterTab = new OleDbDataAdapter(comm);
+            DataSet data1 = new DataSet();
+            AdapterTab.Fill(data1, "Zamówienia");
+            conn.Close();
+            System.Diagnostics.Debug.WriteLine("Odebrano zamówienie o id " + id);
+
+        }
         public static void DopiszZamowienie(double cena, string ids,string source,int idObslugi,bool online=true,bool rozliczone=false)
         {
             string connectionString = source;
             OleDbConnection conn = new OleDbConnection(connectionString);
             conn.Open();
-            string query1 = "INSERT INTO Zamówienia (DataZamówienia, KwotaZamówienia, IDSM, IDObsługi, Online, Rozliczone, Wykonane, WykonaneKuchnia) VALUES('";
+            string query1 = "INSERT INTO Zamówienia (DataZamówienia, KwotaZamówienia, IDSM, IDObsługi, Online, Rozliczone, Wykonane, WykonaneKuchnia, Odebrane) VALUES('";
             query1 += DateTime.Now.ToString();
             query1 += "', '";
             query1 += cena;
@@ -160,7 +226,7 @@ namespace WokItEasy
             query1 += online;
             query1 += ", ";
             query1 += rozliczone;
-            query1 += ", false, false);";
+            query1 += ", false, false, false);";
             System.Diagnostics.Debug.WriteLine(query1);
             OleDbCommand comm = new OleDbCommand(query1, conn);
             OleDbDataAdapter AdapterTab = new OleDbDataAdapter(comm);
