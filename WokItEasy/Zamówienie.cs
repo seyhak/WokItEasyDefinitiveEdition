@@ -209,5 +209,41 @@ namespace WokItEasy
             }
             DopiszZamowieniaZListyID(idsInt, cena, idObslugi, source,online,rozliczone);
         }
+        public static List<Zamówienie> ZbudujZamówienia()
+        {
+            List<Zamówienie> listaZM = new List<Zamówienie>();
+            string connString = source;
+            OleDbConnection connection = new OleDbConnection(connString);
+            connection.Open();
+            string query = "SELECT * FROM Zamówienia WHERE Wykonane = false;";
+            OleDbCommand command = new OleDbCommand(query, connection);
+            OleDbDataAdapter AdapterTabela = new OleDbDataAdapter(command);
+            DataSet data = new DataSet();
+            AdapterTabela.Fill(data, "Zamówienia");
+            string wartosc;
+            for (int a = 0; a < data.Tables["Zamówienia"].Rows.Count; a++)
+            {
+                wartosc = data.Tables["Zamówienia"].Rows[a][0].ToString();
+                Zamówienie zamówienie = new Zamówienie();
+                zamówienie.IdZamówienia = Convert.ToInt32(wartosc);
+                wartosc = data.Tables["Zamówienia"].Rows[a][1].ToString();
+                zamówienie.DataZamówienia = DateTime.Parse(wartosc);
+                wartosc = data.Tables["Zamówienia"].Rows[a][3].ToString();
+                zamówienie.IdZamówień = wartosc;
+                listaZM.Add(zamówienie);
+            }
+            connection.Close();
+            return listaZM;
+        }
+        public static string ZbudujString(Zamówienie tmp)
+        {
+            string str = "";
+            str += tmp.IdZamówienia;
+            str += "#";
+            str += tmp.DataZamówienia;
+            str += "#";
+            str += tmp.IdZamówień;
+            return str;
+        }
     }
 }
