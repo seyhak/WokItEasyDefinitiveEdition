@@ -101,10 +101,6 @@ namespace WokItEasy
             } while (a[x] != ' ');
             return b;
         }
-
-        private void Historia_Load(object sender, EventArgs e)
-        {
-
-        }
+       
     }
 }
