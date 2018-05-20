@@ -17,6 +17,7 @@ namespace WokItEasy
         bool rozliczone;
         bool odebrane;
         bool wykonane;
+        bool wykonaneKuchnia;
         string idZamówień;
         //static int maxIDZamówienia;
         //static bool maxIDZamówieniaZrobione = false;
@@ -30,6 +31,7 @@ namespace WokItEasy
         public bool Rozliczone { get => rozliczone; set => rozliczone = value; }
         public bool Odebrane { get => odebrane; set => odebrane = value; }
         public bool Wykonane { get => wykonane; set => wykonane = value; }
+        public bool WykonaneKuchnia { get => wykonaneKuchnia; set => wykonaneKuchnia = value; }
 
         private static List<Zamówienie> listObecneZamówienia = new List<Zamówienie>();
         private static List<Zamówienie> listObecneZamówieniaNaKuchni = new List<Zamówienie>();
@@ -57,7 +59,12 @@ namespace WokItEasy
                     zamówienie.DataZamówienia = DateTime.Parse(wartosc);
                     wartosc = data.Tables["Zamówienia"].Rows[a][3].ToString();
                     zamówienie.IdZamówień = wartosc;
+                    wartosc = data.Tables["Zamówienia"].Rows[a][7].ToString();
+                    zamówienie.wykonaneKuchnia = Convert.ToBoolean(wartosc);
+                    wartosc = data.Tables["Zamówienia"].Rows[a][8].ToString();
+                    zamówienie.wykonaneKuchnia =Convert.ToBoolean( wartosc);
                     listObecneZamówienia.Add(zamówienie);
+                    wartosc = "";
                 }
                 connection.Close();
                 // return ObecneZamówienia;
@@ -301,6 +308,38 @@ namespace WokItEasy
             connection.Close();
             return listaZM;
         }
+        public static List<Zamówienie> ZbudujZamówieniaDoPliku()
+        {
+            List<Zamówienie> listaZM = new List<Zamówienie>();
+            string connString = source;
+            OleDbConnection connection = new OleDbConnection(connString);
+            connection.Open();
+            string query = "SELECT * FROM Zamówienia";
+            OleDbCommand command = new OleDbCommand(query, connection);
+            OleDbDataAdapter AdapterTabela = new OleDbDataAdapter(command);
+            DataSet data = new DataSet();
+            AdapterTabela.Fill(data, "Zamówienia");
+            string wartosc;
+            for (int a = 0; a < data.Tables["Zamówienia"].Rows.Count; a++)
+            {
+                wartosc = data.Tables["Zamówienia"].Rows[a][0].ToString();
+                Zamówienie zamówienie = new Zamówienie();
+                zamówienie.IdZamówienia = Convert.ToInt32(wartosc);
+                wartosc = data.Tables["Zamówienia"].Rows[a][1].ToString();
+                zamówienie.DataZamówienia = DateTime.Parse(wartosc);
+                wartosc = data.Tables["Zamówienia"].Rows[a][3].ToString();
+                zamówienie.IdZamówień = wartosc;
+                wartosc = data.Tables["Zamówienia"].Rows[a][7].ToString();
+                zamówienie.Wykonane = Convert.ToBoolean(wartosc);
+                wartosc = data.Tables["Zamówienia"].Rows[a][8].ToString();
+                zamówienie.WykonaneKuchnia = Convert.ToBoolean(wartosc);
+                wartosc = data.Tables["Zamówienia"].Rows[a][9].ToString();
+                zamówienie.Odebrane = Convert.ToBoolean(wartosc);
+                listaZM.Add(zamówienie);
+            }
+            connection.Close();
+            return listaZM;
+        }
         public static string ZbudujString(Zamówienie tmp)
         {
             string str = "";
@@ -309,6 +348,15 @@ namespace WokItEasy
             str += tmp.DataZamówienia;
             str += "#";
             str += tmp.IdZamówień;
+            str += "#";
+            if (tmp.wykonane == true) str += "1";
+            else str += "0";
+            str += "#";
+            if (tmp.wykonaneKuchnia == true) str += "1";
+            else str += "0";
+            str += "#";
+            if (tmp.odebrane == true) str += "1";
+            else str += "0";
             return str;
         }
     }

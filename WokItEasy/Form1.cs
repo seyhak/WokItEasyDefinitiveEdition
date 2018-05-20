@@ -140,7 +140,7 @@ namespace WokItEasy
                                 //s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
                                 s.Send(asen.GetBytes("OK"));
                                 UTF8Encoding coderUTF = new UTF8Encoding();
-                                List<Zamówienie> listaZM = Zamówienie.ZbudujZamówienia();
+                                List<Zamówienie> listaZM = Zamówienie.ZbudujZamówieniaDoPliku();
                                 s.Send(asen.GetBytes(Convert.ToString(listaZM.Count())));
                                 foreach (Zamówienie z in listaZM)
                                 {
@@ -153,7 +153,26 @@ namespace WokItEasy
                                 }
                                 break;
                             }
-                        case "FZ": //wykonanie zamówienia przez klienta
+                        case "SK":
+                            {
+                                asen = new ASCIIEncoding();//odpowiedz do klienta
+                                //s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
+                                s.Send(asen.GetBytes("OK"));
+                                UTF8Encoding coderUTF = new UTF8Encoding();
+                                List<Kategoria> listaK = Kategoria.Zbuduj(source);
+                                s.Send(asen.GetBytes(Convert.ToString(listaK.Count())));
+                                foreach(Kategoria kat in listaK)
+                                {
+                                    string wyjscie = Kategoria.ZbudujStringKetegorii(kat);
+                                    System.Diagnostics.Debug.WriteLine(wyjscie);
+                                    s.Send(coderUTF.GetBytes(LengthConverter.Convert(coderUTF.GetByteCount(wyjscie))));//długość,
+                                    s.Send(coderUTF.GetBytes(wyjscie));//pozycja
+                                }
+
+                                break;
+
+                            }
+                        case "FZ": //wykonanie zamówienia dla klienta oraz sprecyzowania czy mowa o kuchni
                             {
                                 asen = new ASCIIEncoding();//odpowiedz do klienta
                                 s.Send(asen.GetBytes("OK"));
@@ -161,7 +180,26 @@ namespace WokItEasy
                                 k = s.Receive(b);//odczytanie ilosc w zamowieniu od klienta
                                 tekst = "";
                                 for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
-                                Zamówienie.WykonajZamówienie(Convert.ToInt32(tekst),false);
+                                string ID = tekst;
+
+                                b = new byte[256];
+                                k = s.Receive(b);//odczytanie ilosc w zamowieniu od klienta
+                                tekst = "";
+                                for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
+                                if(tekst=="0") Zamówienie.WykonajZamówienie(Convert.ToInt32(ID), false);
+                                else Zamówienie.WykonajZamówienie(Convert.ToInt32(ID), true);
+
+                                break;
+                            }
+                        case "OZ":
+                            {
+                                asen = new ASCIIEncoding();//odpowiedz do klienta
+                                s.Send(asen.GetBytes("OK"));
+                                b = new byte[256];
+                                k = s.Receive(b);//odczytanie ilosc w zamowieniu od klienta
+                                tekst = "";
+                                for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
+                                Zamówienie.OdbrierzZamówienie(Convert.ToInt32(tekst));
                                 break;
                             }
                         //test
@@ -339,211 +377,6 @@ namespace WokItEasy
                 }
             }
         }
-        //private void Performer(object objParam)
-        //{
-
-        //    //zbudowanie listy
-        //    listaSM = SkładnikMenu.Zbuduj(source);
-        //    Socket s;
-        //    if (!end) t_Perform.Abort();
-        //    while (end)
-        //    {
-                
-        //        try
-        //        {
-        //            mut.WaitOne();
-        //            if (l_Listeners.Count != 0)
-        //            {
-        //                //test
-        //                //s = l_Listeners.First<TcpListener>().AcceptTcpClient();
-        //                mut.ReleaseMutex();
-        //                ASCIIEncoding asen;
-        //                string str;
-        //                byte[] b = new byte[256];
-        //                int k = s.Receive(b);//odczytanie tekstu od klienta
-        //                string tekst = "";
-        //                for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
-        //                //tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
-        //                switch (tekst) {
-        //                    case "W"://Wylogowanie
-        //                {
-        //                    asen = new ASCIIEncoding();//odpowiedz do klienta
-        //                    //s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
-        //                    s.Send(asen.GetBytes("OK"));
-        //                    b = new byte[256];
-        //                    k = s.Receive(b);//odczytanie ilosc w zamowieniu od klienta
-        //                    tekst = "";
-        //                    for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
-        //                    //tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
-        //                    string loginDoWylogowania = tekst;
-        //                    int tmp = 0;
-        //                    mut2.WaitOne();
-        //                    foreach (string st in l_Zalogowani)
-        //                    {
-        //                        if (st == loginDoWylogowania) l_Zalogowani.RemoveAt(tmp);
-        //                        tmp++;
-        //                    }
-        //                    mut2.ReleaseMutex();
-        //                            continue;
-        //                }
-        //                    case "O"://Zamówienia
-        //                {
-        //                            string order = "";// lista obiektów identyfikowanych przez ID
-        //                            asen = new ASCIIEncoding();//odpowiedz do klienta
-        //                            str = "OK";
-        //                            s.Send(asen.GetBytes(LengthConverter.Convert(str.Length)));//długość słowa
-        //                            s.Send(asen.GetBytes(str));
-        //                            Thread.Sleep(400);//poczekaj aż klient wykona stringa
-        //                            b = new byte[2560];
-        //                            k = s.Receive(b);//odczytanie id od klienta
-        //                            tekst = "";
-        //                            for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
-        //                            order = tekst;
-
-        //                            //wczytywanie listy zamówień
-        //                            string[] split = order.Split('#');
-                                    
-        //                            int idObsługi = Convert.ToInt32(split[0]);
-        //                            System.Diagnostics.Debug.WriteLine("Zamówienie od: " + split[0]);
-        //                            double kwota = 0;
-        //                            kwota = Double.Parse(split[1], CultureInfo.InvariantCulture);
-        //                            List<int> listIDOrders = new List<int>();
-        //                            for(int v = 2; v < split.Length; v++)
-        //                            {
-        //                                listIDOrders.Add(Convert.ToInt32(split[v]));
-        //                            }
-        //                            System.Diagnostics.Debug.WriteLine("Zamówienie: " + listIDOrders.ToString()+" "+kwota + " " + idObsługi + " " + source);
-        //                            Zamówienie.DopiszZamowieniaZListyID(listIDOrders,kwota,idObsługi, source);
-        //                            System.Diagnostics.Debug.WriteLine("Dodano zamówienie");
-        //                            continue;
-        //                        }
-        //                    case "M"://Lista dań
-        //                        {
-        //                            string position = "";
-        //                            asen = new ASCIIEncoding();//odpowiedz do klienta
-        //                            UTF8Encoding coderUTF = new UTF8Encoding();
-        //                            //s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
-        //                            str = "OK";
-        //                            s.Send(asen.GetBytes(LengthConverter.Convert(str.Length)));//długość słowa
-        //                            s.Send(asen.GetBytes(str));
-
-        //                            //wysłanie ilości dań
-        //                            System.Diagnostics.Debug.WriteLine("Sending Menu..."); 
-        //                            s.Send(asen.GetBytes(LengthConverter.Convert(listaSM.Count)));//ile pozycji
-        //                            foreach(SkładnikMenu sm in listaSM)
-        //                            {
-        //                                position = sm.getAlmostXML();
-        //                                System.Diagnostics.Debug.WriteLine(position);
-        //                                s.Send(coderUTF.GetBytes(LengthConverter.Convert(coderUTF.GetByteCount(position))));//długość
-        //                                s.Send(coderUTF.GetBytes(position));//pozycja
-        //                            }
-        //                            System.Diagnostics.Debug.WriteLine("Done");
-        //                            continue;
-        //                        }
-        //                    case "L"://Logowanie
-        //                        {
-        //                    asen = new ASCIIEncoding();//odpowiedz do klienta
-        //                    //str= Szyfrowanie.Encrypt("OK", encryptyingCode);
-        //                    str = "OK";
-        //                    s.Send(asen.GetBytes(LengthConverter.Convert(str.Length)));//długość słowa
-        //                    s.Send(asen.GetBytes(str));
-        //                    Thread.Sleep(300);//inaczej pomija
-        //                    b = new byte[256];
-        //                    k = s.Receive(b);//odczytanie tekstu od klienta
-        //                    tekst = "";
-
-        //                    System.Diagnostics.Debug.WriteLine(k);
-
-        //                    for (int i = 0; i < k; i++)
-        //                    { tekst += Convert.ToChar(b[i]);
-        //                        System.Diagnostics.Debug.Write(Convert.ToChar(b[i]) + " ");
-        //                    }
-        //                    //tekst = Szyfrowanie.Decrypt(tekst, encryptyingCode);
-        //                    string[] splited = tekst.Split(' ');
-
-        //                    System.Diagnostics.Debug.WriteLine("");
-        //                    System.Diagnostics.Debug.WriteLine("Login: " + splited[0]);
-        //                    System.Diagnostics.Debug.WriteLine(" haslo: " + splited[1]);
-
-        //                    OleDbConnection connection = new OleDbConnection(source);
-        //                    connection.Open();//poszukiwanie loginu i hasla
-        //                    string query = "SELECT * FROM Pracownicy";
-        //                    OleDbCommand command = new OleDbCommand(query, connection);
-        //                    OleDbDataAdapter AdapterTabela = new OleDbDataAdapter(command);
-        //                    DataSet data = new DataSet();
-        //                    AdapterTabela.Fill(data, "Pracownicy");
-        //                    string wartosc;
-        //                    string aktywny;
-        //                    for (int a = 0; a < data.Tables["Pracownicy"].Rows.Count; a++)
-        //                    {
-        //                        wartosc = data.Tables["Pracownicy"].Rows[a]["Login"].ToString();
-        //                        aktywny = data.Tables["Pracownicy"].Rows[a]["Aktywny"].ToString();
-
-        //                        if (wartosc == splited[0])
-        //                        {
-
-        //                            System.Diagnostics.Debug.WriteLine("Poprawny login: " + splited[0]);
-        //                            string haslo = data.Tables["Pracownicy"].Rows[a]["Hasło"].ToString();
-        //                            if (haslo == splited[1])
-        //                            {
-        //                                System.Diagnostics.Debug.WriteLine("Poprawne hasło: " + splited[1]);
-        //                                bool free = true;//jeżeli jest wolny na liście
-        //                                mut2.WaitOne();
-        //                                foreach (string log in l_Zalogowani)
-        //                                {
-        //                                    if (log == splited[0])
-        //                                    {
-        //                                        free = false;
-        //                                    }
-        //                                }
-        //                                mut2.ReleaseMutex();
-        //                                if (free)//jeżeli jest połączony to "C"
-        //                                {
-        //                                    System.Diagnostics.Debug.WriteLine("Wysyłanie C ");
-        //                                    string ID = data.Tables["Pracownicy"].Rows[a]["IDPracownika"].ToString();
-        //                                    l_Zalogowani.Add(splited[0]);
-        //                                    asen = new ASCIIEncoding();//opwoiedz do klienta
-        //                                    //str = Szyfrowanie.Encrypt("C", encryptyingCode);
-        //                                    str = "C";
-        //                                    s.Send(asen.GetBytes(LengthConverter.Convert(str.Length)));//długość słowa
-        //                                    s.Send(asen.GetBytes(str));
-        //                                    //wysyłamy ID 
-        //                                    str = data.Tables["Pracownicy"].Rows[a]["IDpracownika"].ToString();
-        //                                    System.Diagnostics.Debug.WriteLine("ID : "+str);
-        //                                    s.Send(asen.GetBytes(LengthConverter.Convert(str.Length)));//długość słowa
-        //                                    s.Send(asen.GetBytes(str));
-        //                                }
-
-        //                            }
-        //                        }
-        //                    }
-        //                    connection.Close();continue;
-        //                        }
-        //                }
-        //                s.Close();
-        //                mut.WaitOne();
-        //                l_Listeners.First<TcpListener>().Stop();
-        //                l_Listeners.RemoveAt(0);
-        //                mut.ReleaseMutex();
-        //            }
-        //            else
-        //            {
-        //                mut.ReleaseMutex();
-        //            }
-                    
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            mut.WaitOne();
-        //            l_Listeners.First<TcpListener>().Stop();
-        //            l_Listeners.RemoveAt(0);
-        //            mut.ReleaseMutex();
-        //            Console.WriteLine("Error..... " + e.StackTrace);
-        //        }
-
-        //    }
-            
-        //}
         string zwrocKategorie(string a)
         {
             OleDbConnection connection = new OleDbConnection(source);

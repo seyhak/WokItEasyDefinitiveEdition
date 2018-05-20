@@ -96,5 +96,15 @@ namespace WokItEasy
             }
             return false;
         }
+        public static string ZbudujStringKetegorii(Kategoria tmp)
+        {
+            string str = "";
+            str += tmp.IDKat;
+            str += "#";
+            str += tmp.NazwaKat;
+            str += "#";
+            str += tmp.doKuchni;
+            return str;
+        }
     }
 }
