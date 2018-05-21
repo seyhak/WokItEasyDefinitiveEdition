@@ -138,7 +138,7 @@ namespace WokItEasy
                 string connString = source;
                 OleDbConnection connection = new OleDbConnection(connString);
                 connection.Open();
-                string query = "SELECT * FROM Zamówienia WHERE WykonaneKuchnia = false;";
+                string query = "SELECT * FROM Zamówienia WHERE Odebrane = false;";
                 OleDbCommand command = new OleDbCommand(query, connection);
                 OleDbDataAdapter AdapterTabela = new OleDbDataAdapter(command);
                 DataSet data = new DataSet();
@@ -214,6 +214,21 @@ namespace WokItEasy
             AdapterTab.Fill(data1, "Zamówienia");
             conn.Close();
             System.Diagnostics.Debug.WriteLine("Odebrano zamówienie o id " + id);
+
+        }
+        public static void PrzekażDoOdebraniaZamówienie(int id)
+        {
+            string connectionString = source;
+            OleDbConnection conn = new OleDbConnection(connectionString);
+            conn.Open();
+            string query = "UPDATE Zamówienia SET Wykonane = true WHERE Identyfikator = " + id.ToString() + ";";
+            System.Diagnostics.Debug.WriteLine(query);
+            OleDbCommand comm = new OleDbCommand(query, conn);
+            OleDbDataAdapter AdapterTab = new OleDbDataAdapter(comm);
+            DataSet data1 = new DataSet();
+            AdapterTab.Fill(data1, "Zamówienia");
+            conn.Close();
+            System.Diagnostics.Debug.WriteLine("Przekazano do odebrania zamówienie o id " + id);
 
         }
         public static void DopiszZamowienie(double cena, string ids,string source,int idObslugi,bool online=true,bool rozliczone=false)

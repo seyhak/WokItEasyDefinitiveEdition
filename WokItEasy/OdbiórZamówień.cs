@@ -36,7 +36,6 @@ namespace WokItEasy
                 framer++;
                 if (framer % 200 == 0)
                 {
-                    SetHour(DateTime.Now.ToString());
                     if (framer%1000000==0)//wchodzi tylko jeżeli pojawiła się zmiana
                     {
                         //Clear();
@@ -139,27 +138,6 @@ namespace WokItEasy
                             listBox2.Items.Add(what);
                             break;
                     }
-                    label2.Text = DateTime.Now.ToString();
-                }
-            }
-            catch
-            {
-
-            }
-
-        }
-        void SetHour(string text)
-        {
-            try
-            {
-                if (InvokeRequired)
-                {
-                    this.Invoke(new Action<string>(SetHour), new object[] { text });
-                    return;
-                }
-                else
-                {
-                    label2.Text = DateTime.Now.ToString();
                 }
             }
             catch
@@ -171,7 +149,15 @@ namespace WokItEasy
 
         private void listBox1_MouseClick(object sender, MouseEventArgs e)
         {
-           
+            try
+            {
+                int a = Convert.ToInt32(listBox1.SelectedItem.ToString());
+                Zamówienie.PrzekażDoOdebraniaZamówienie(a);
+                Clear(1, a);
+                Clear(1, a);
+                Clear(1, a);
+            }
+            catch { }
         }
 
         private void OdbiórZamówień_MouseClick(object sender, MouseEventArgs e)
@@ -186,8 +172,10 @@ namespace WokItEasy
             try
             {
                 int a = Convert.ToInt32(listBox2.SelectedItem.ToString());
-                Clear(2, a);
                 Zamówienie.OdbrierzZamówienie(a);
+                Clear(2, a);
+                Clear(2, a);
+                Clear(2, a);
             }
             catch { }
         }
