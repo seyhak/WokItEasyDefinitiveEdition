@@ -153,7 +153,7 @@ namespace WokItEasy
                                 }
                                 break;
                             }
-                        case "SK":
+                        case "SK"://pobierz kategorie
                             {
                                 asen = new ASCIIEncoding();//odpowiedz do klienta
                                 //s.Send(asen.GetBytes(Szyfrowanie.Encrypt("OK", encryptyingCode)));
@@ -191,7 +191,7 @@ namespace WokItEasy
 
                                 break;
                             }
-                        case "OZ":
+                        case "OZ"://odbierz zamówienie
                             {
                                 asen = new ASCIIEncoding();//odpowiedz do klienta
                                 s.Send(asen.GetBytes("OK"));
@@ -200,6 +200,17 @@ namespace WokItEasy
                                 tekst = "";
                                 for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
                                 Zamówienie.OdbrierzZamówienie(Convert.ToInt32(tekst));
+                                break;
+                            }
+                        case "OD": //oznacz zamówienie jako wykonane
+                            {
+                                asen = new ASCIIEncoding();//odpowiedz do klienta
+                                s.Send(asen.GetBytes("OK"));
+                                b = new byte[256];
+                                k = s.Receive(b);//odczytanie ilosc w zamowieniu od klienta
+                                tekst = "";
+                                for (int i = 0; i < k; i++) tekst += Convert.ToChar(b[i]);
+                                Zamówienie.PrzekażDoOdebraniaZamówienie(Convert.ToInt32(tekst));
                                 break;
                             }
                         //test
